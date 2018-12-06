@@ -113,12 +113,6 @@ class CustomAttributeDefinition(attributevalidator.AttributeValidator,
                            update=False),
       *_include_links)
 
-  _sanitize_html = [
-      "multi_choice_options",
-      "helptext",
-      "placeholder",
-  ]
-
   _reserved_names = {}
 
   def _clone(self, target):

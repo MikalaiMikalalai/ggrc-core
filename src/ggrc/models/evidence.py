@@ -88,11 +88,6 @@ class Evidence(Roleable, Relatable, mixins.Titled,
       ),
   ]
 
-  _sanitize_html = [
-      "title",
-      "description",
-  ]
-
   _aliases = {
       "title": "Title",
       "link": "Link",

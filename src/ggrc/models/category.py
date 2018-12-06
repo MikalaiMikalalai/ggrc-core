@@ -63,9 +63,6 @@ class CategoryBase(base.ContextRBAC, Base, db.Model):
       'type',
       'required',
   )
-  _sanitize_html = [
-      'name',
-  ]
 
   @classmethod
   def eager_query(cls):

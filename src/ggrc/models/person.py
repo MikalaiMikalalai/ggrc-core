@@ -86,10 +86,6 @@ class Person(CustomAttributable, CustomAttributeMapable, HasOwnContext,
       reflection.Attribute('object_people', create=False, update=False),
       reflection.Attribute('system_wide_role', create=False, update=False),
   )
-  _sanitize_html = [
-      'company',
-      'name',
-  ]
   _include_links = []
   _aliases = {
       "name": "Name",

@@ -51,9 +51,6 @@ class ObjectPerson(Timeboxed, base.ContextRBAC, Base, db.Model):
       'person',
       'personable',
   )
-  _sanitize_html = [
-      'notes',
-  ]
 
   @classmethod
   def eager_query(cls):

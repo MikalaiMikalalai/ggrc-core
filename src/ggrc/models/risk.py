@@ -58,13 +58,6 @@ class Risk(Roleable,
     else:
       raise ValueError("Risk Type value shouldn't be empty")
 
-  _sanitize_html = [
-      'risk_type',
-      'threat_source',
-      'threat_event',
-      'vulnerability'
-  ]
-
   _fulltext_attrs = [
       'risk_type',
       'threat_source',

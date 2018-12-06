@@ -81,11 +81,6 @@ class Document(Roleable, Relatable, mixins.Titled,
       'status'
   ]
 
-  _sanitize_html = [
-      'title',
-      'description',
-  ]
-
   _aliases = {
       'title': 'Title',
       'link': 'Link',

@@ -239,10 +239,6 @@ class Control(WithLastAssessmentDate,
       'version',
   ]
 
-  _sanitize_html = [
-      'version',
-  ]
-
   VALID_RECIPIENTS = frozenset([
       "Assignees",
       "Creators",

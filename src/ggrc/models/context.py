@@ -60,7 +60,6 @@ class Context(base.ContextRBAC, Base, db.Model):
                                         'related_object',
                                         'description')
 
-  _sanitize_html = ['name', 'description']
   _include_links = []
 
 

@@ -102,11 +102,6 @@ class Audit(Snapshotable,
         ),
     )
 
-  _sanitize_html = [
-      'gdrive_evidence_folder',
-      'description',
-  ]
-
   _include_links = []
 
   _aliases = {

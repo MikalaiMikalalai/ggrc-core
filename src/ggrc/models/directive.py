@@ -107,12 +107,6 @@ class Directive(mixins.LastDeprecatedTimeboxed,
         ),
     )
 
-  _sanitize_html = [
-      'organization',
-      'scope',
-      'version',
-  ]
-
   _include_links = []
 
   _aliases = {

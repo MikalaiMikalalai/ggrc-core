@@ -138,18 +138,6 @@ class TestUtilsFunctions(unittest.TestCase):
     expected_result = utils.merge_dicts(dict1, dict2, dict3)
     self.assertEqual(result, expected_result)
 
-  def test_html_cleaner(self):
-    """Test html tag cleaner."""
-    def clean(value):
-      return utils.html_cleaner.cleaner(None, value, None, None)
-
-    self.assertEqual(clean("<script>alert(1)</script>"), "alert(1)")
-
-    nested = ("<<script>s<script>c<script>r<script>i<script>p<script>t"
-              "<script>>alert(2)<<script>/<script>s<script>c<script>r<script>"
-              "i<script>p<script>t<script>>")
-    self.assertEqual(clean(nested), "alert(2)")
-
   def test_iso_to_us_date(self):
     """Test ISO to US date format conversion."""
     self.assertEqual(utils.iso_to_us_date("2002-07-11"), "07/11/2002")

@@ -203,10 +203,6 @@ class Comment(Roleable, Relatable, Described, Notifiable,
                            update=False),
   )
 
-  _sanitize_html = [
-      "description",
-  ]
-
   def get_objects_to_reindex(self):
     """Return list required objects for reindex if comment C.U.D."""
     source_qs = db.session.query(

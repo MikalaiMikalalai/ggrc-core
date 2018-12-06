@@ -39,10 +39,6 @@ class CustomAttributeValue(base.ContextRBAC, Base, Indexed, db.Model):
   _fulltext_attrs = ["attribute_value"]
   REQUIRED_GLOBAL_REINDEX = False
 
-  _sanitize_html = [
-      "attribute_value",
-  ]
-
   custom_attribute_id = db.Column(
       db.Integer,
       db.ForeignKey('custom_attribute_definitions.id', ondelete="CASCADE")

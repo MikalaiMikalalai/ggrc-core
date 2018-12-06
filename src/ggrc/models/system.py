@@ -62,7 +62,6 @@ class SystemOrProcess(ScopedCommentable,
       'version',
       'network_zone',
   ]
-  _sanitize_html = ['version']
   _aliases = {
       "documents_file": None,
       "network_zone": {

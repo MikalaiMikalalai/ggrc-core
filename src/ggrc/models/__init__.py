@@ -2,13 +2,10 @@
 # Licensed under http://www.apache.org/licenses/LICENSE-2.0 <see LICENSE file>
 
 import inspect
-import sqlalchemy as sa
 
 from ggrc.models import inflector
-from ggrc.models import reflection
 from ggrc.models import all_models
 from ggrc.models.all_models import *  # noqa
-from ggrc.utils import html_cleaner
 from ggrc.utils import benchmark
 
 """All GGRC model objects and associated utilities."""
@@ -90,19 +87,9 @@ def init_session_monitor_cache():
   event.listen(Session, 'after_rollback', clear_cache)
 
 
-def init_sanitization_hooks():
-  # Register event listener on all String and Text attributes to sanitize them.
-  for model in all_models.all_models:  # noqa
-    attr_names = reflection.AttributeInfo.gather_attrs(model, "_sanitize_html")
-    for attr_name in attr_names:
-      attr = getattr(model, attr_name)
-      sa.event.listen(attr, 'set', html_cleaner.cleaner, retval=True)
-
-
 def init_app(app):
   init_all_models(app)
   init_lazy_mixins()
   init_session_monitor_cache()
-  # init_sanitization_hooks()
 
 from ggrc.models.inflector import get_model  # noqa

@@ -50,7 +50,6 @@ class Product(Roleable,
       'kind',
       'version',
   ]
-  _sanitize_html = ['version', ]
   _aliases = {
       "documents_file": None,
       "kind": {

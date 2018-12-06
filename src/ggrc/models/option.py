@@ -26,6 +26,3 @@ class Option(Described, base.ContextRBAC, Base, db.Model):
     )
 
   _api_attrs = reflection.ApiAttributes('role', 'title', 'required')
-  _sanitize_html = [
-      'title',
-  ]

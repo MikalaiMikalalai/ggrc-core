@@ -76,7 +76,6 @@ class Titled(object):
   # REST properties
   _api_attrs = reflection.ApiAttributes('title')
   _fulltext_attrs = ['title']
-  _sanitize_html = ['title']
   _aliases = {
       "title": {
           "display_name": "Title",
@@ -96,7 +95,6 @@ class Described(object):
   # REST properties
   _api_attrs = reflection.ApiAttributes('description')
   _fulltext_attrs = ['description']
-  _sanitize_html = ['description']
   _aliases = {"description": "Description"}
 
   @classmethod
@@ -117,7 +115,6 @@ class Noted(object):
   # REST properties
   _api_attrs = reflection.ApiAttributes('notes')
   _fulltext_attrs = ['notes']
-  _sanitize_html = ['notes']
   _aliases = {"notes": "Notes"}
 
   @classmethod
@@ -461,7 +458,6 @@ class Slugged(Base):
   # REST properties
   _api_attrs = reflection.ApiAttributes('slug')
   _fulltext_attrs = ['slug']
-  _sanitize_html = ['slug']
   _aliases = {
       "slug": {
           "display_name": "Code",
@@ -664,7 +660,6 @@ class TestPlanned(object):
   # REST properties
   _api_attrs = reflection.ApiAttributes('test_plan')
   _fulltext_attrs = ['test_plan']
-  _sanitize_html = ['test_plan']
   _aliases = {"test_plan": "Assessment Procedure"}
 
   @classmethod

@@ -52,7 +52,6 @@ class Requirement(Roleable,
                    'Requirements')
 
   _api_attrs = reflection.ApiAttributes('notes')
-  _sanitize_html = ['notes']
   _include_links = []
 
   @classmethod
