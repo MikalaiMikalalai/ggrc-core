@@ -103,6 +103,6 @@ def init_app(app):
   init_all_models(app)
   init_lazy_mixins()
   init_session_monitor_cache()
-  init_sanitization_hooks()
+  # init_sanitization_hooks()
 
 from ggrc.models.inflector import get_model  # noqa

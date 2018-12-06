@@ -10,7 +10,7 @@
 
 -block extra_javascript
   =super()
-  GGRC.page_object = { "person": ={ full_user_json()|safe } };
+  GGRC.page_object = { "person": ={ full_user_json()|tojson|wrap_in_json_parse|safe } };
 
   GGRC.pageType = '{{page_type}}';
 

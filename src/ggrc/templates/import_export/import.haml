@@ -5,7 +5,7 @@
 
 -block extra_javascript
   =super()
-  GGRC.Bootstrap.importable = ={ import_definitions()|safe };
+  GGRC.Bootstrap.importable = ={ import_definitions()|tojson|wrap_in_json_parse|safe };
   GGRC.pageType = "IMPORT";
 
 -block page_scripts

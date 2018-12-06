@@ -103,3 +103,16 @@ def init_filter_views():
     """Remove spaces
     """
     return "".join(s.split(' '))
+
+  # pylint: disable=unused-variable
+  @app.template_filter('wrap_in_json_parse')
+  def wrap_in_json_parse_filter(json_str):
+    """Wrap JSON string in JSON.parse(). Original intention was
+    to remove sanitization hooks and allow fields to include
+    special symbols like '<', '>', '&', etc.
+    Usage: ={ some_obj|tojson|wrap_in_json_parse|safe }
+
+    Args:
+      json_str: JSON string escaped with Jinja2 tojson filter
+    """
+    return 'JSON.parse({})'.format(json_str)

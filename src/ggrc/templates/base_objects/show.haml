@@ -13,7 +13,7 @@
 
 -block extra_javascript
   =super()
-  GGRC.page_object = ={ instance_json()|safe };
+  GGRC.page_object = ={ instance_json()|tojson|wrap_in_json_parse|safe };
 
   -# Since it is expensive (issues a DB query), only invoke user_task_count()
   -# once and use the resulting list. An auxiliary property is used to store
