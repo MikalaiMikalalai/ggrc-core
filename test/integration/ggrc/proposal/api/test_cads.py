@@ -83,7 +83,7 @@ class TestCADProposalsApi(base.BaseTestProposalApi):
     data["custom_attribute_values"] = [{
         "custom_attribute_id": cad_id,
         "attribute_value": sent_value,
-        "attribute_object_id": None
+        "attribute_object": None
     }]
     self.create_proposal(control,
                          full_instance_content=data,

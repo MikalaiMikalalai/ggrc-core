@@ -50,11 +50,11 @@ def get_field_single_values(proposal, person_dict, cads_dict):
     cad_id = int(cad_id)
     if cad_id not in cads_dict:
       continue
-    if value_obj.get("attribute_object_id"):
+    if value_obj.get("attribute_object"):
       if value_obj["attribute_value"] != "Person":
         # log it
         continue
-      value = person_dict[int(value_obj["attribute_object_id"])]
+      value = person_dict[int(value_obj["attribute_object"]["id"])]
     else:
       value = value_obj["attribute_value"]
     values_dict[cads_dict[cad_id]] = value

@@ -35,7 +35,7 @@ def register_notification_listeners():
 def _get_value(cav, _type):
   """Get value of custom attribute item"""
   if _type == 'Map:Person':
-    return cav["attribute_object_id"]
+    return cav["attribute_object"]["id"] if cav["attribute_object"] else None
   if _type == 'Checkbox':
     return cav["attribute_value"] == '1'
   return cav["attribute_value"]

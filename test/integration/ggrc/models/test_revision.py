@@ -267,7 +267,6 @@ class TestRevisions(TestCase):
             'attributable_id': asmnt_id,
             'attributable_type': 'Assessment',
             'attribute_object': None,
-            'attribute_object_id': None,
             'attribute_value': attribute_value,
             'context_id': None,
             'custom_attribute_id': cad_id,

@@ -238,14 +238,22 @@ class TestSnapshotBlockConverter(unittest.TestCase):
       ({"custom_attribute_id": 1, "attribute_value": True}, "yes"),
       ({"custom_attribute_id": 1, "attribute_value": "1"}, "yes"),
       ({"custom_attribute_id": 1, "attribute_value": "0"}, "no"),
-      ({"custom_attribute_id": 3, "attribute_value":
-        "Person", "attribute_object_id": 4}, "user@example.com"),
+      ({"custom_attribute_id": 3, "attribute_value": "Person",
+        "attribute_object": {
+            "context_id": None, "href": "/api/people/4",
+            "id": 4, "type": "Person"
+        }
+        }, "user@example.com"),
       # If the original object was deleted from the system we do not store all
       # of its values in he revision. Proper thing would be to go through
       # revisions of this object and use those static values. But we do not
       # currently support that.
       ({"custom_attribute_id": 3, "attribute_value": "Bad Option",
-        "attribute_object_id": 4}, ""),
+        "attribute_object": {
+            "context_id": None, "href": "/api/people/4",
+            "id": 4, "type": "Person"
+        }
+        }, ""),
   )
   @ddt.unpack
   def test_get_cav_value_string(self, value, expected_value):

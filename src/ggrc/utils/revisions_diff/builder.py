@@ -160,13 +160,21 @@ def generate_cav_diff(cads, proposed, revisioned):
     return {}
   diff = {}
   proposed_cavs = {
-      int(i["custom_attribute_id"]): (i["attribute_value"],
-                                      i["attribute_object_id"])
-      for i in proposed}
+      int(i["custom_attribute_id"]): (
+          i["attribute_value"],
+          None if i["attribute_object"] is None
+          else i["attribute_object"]["id"]
+      )
+      for i in proposed
+  }
   revisioned_cavs = {
-      int(i["custom_attribute_id"]): (i["attribute_value"],
-                                      i["attribute_object_id"])
-      for i in revisioned}
+      int(i["custom_attribute_id"]): (
+          i["attribute_value"],
+          None if i["attribute_object"] is None
+          else i["attribute_object"]["id"]
+      )
+      for i in revisioned
+  }
   for cad in cads:
     if cad.id not in proposed_cavs:
       continue
