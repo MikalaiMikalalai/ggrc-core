@@ -59,6 +59,7 @@ class TestAssessmentTemplate(TestCase):
         {
             u"type": u"Audit",
             u"id": long(audit.id),
+            u'title': unicode(audit.title),
             u"href": u"/api/audits/{}".format(long(audit.id)),
             u"context_id": long(audit.context.id),
             u"issue_tracker": {
