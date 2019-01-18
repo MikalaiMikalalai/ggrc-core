@@ -307,6 +307,7 @@ def build_audit_stub(obj):
   return {
       'type': 'Audit',
       'id': audit_id,
+      'title': obj.audit.title,
       'context_id': obj.context_id,
       'href': '/api/audits/%d' % audit_id,
       'issue_tracker': obj.audit.issue_tracker,
