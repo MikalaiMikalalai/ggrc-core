@@ -13,6 +13,7 @@ from ggrc.access_control.roleable import Roleable
 from ggrc.fulltext import attributes
 from ggrc.models.comment import Commentable
 from ggrc.models.deferred import deferred
+from ggrc.models import audit
 from ggrc.models import mixins
 from ggrc.models.mixins import issue_tracker
 from ggrc.models.mixins.audit_relationship import AuditRelationship
@@ -90,6 +91,10 @@ class Issue(Roleable,
   _fulltext_attrs = [
       attributes.DateFullTextAttr('due_date', 'due_date'),
   ]
+
+  _custom_publish = {
+      'audit': audit.build_audit_stub,
+  }
 
   audit_id = deferred(
       db.Column(db.Integer, db.ForeignKey('audits.id'), nullable=True),
