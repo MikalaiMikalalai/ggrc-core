@@ -512,7 +512,6 @@ class Revision(Filterable, base.ContextRBAC, Base, db.Model):
         "ObjectTemplates": ["name", ],
         "Proposal": ["instance_type", ],
         "Snapshot": ["child_type", "parent_type", ],
-        "TaskGroupObject": ["object_type", ],
     }
     # change to add special values cases
     special_cases = {

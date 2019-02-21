@@ -10,7 +10,6 @@ from ggrc import db
 from ggrc.extensions import get_extension_modules
 from ggrc import models
 from ggrc.models import Snapshot
-from ggrc.models import all_models
 from ggrc.models.relationship import Relationship
 from ggrc.snapshotter.rules import Types
 
@@ -54,25 +53,9 @@ def custom_attribute_mapping(object_type, related_type, related_ids):
   )
 
 
-def task_group_object(object_type, related_type, related_ids):
-  """Handle task group object relationship."""
-  if not related_ids:
-    return None
-  if object_type == "TaskGroup":
-    return db.session.query(all_models.TaskGroupObject.task_group_id).filter(
-        (all_models.TaskGroupObject.object_type == related_type) &
-        all_models.TaskGroupObject.object_id.in_(related_ids))
-  elif related_type == "TaskGroup":
-    return db.session.query(all_models.TaskGroupObject.object_id).filter(
-        (all_models.TaskGroupObject.object_type == related_type) &
-        all_models.TaskGroupObject.task_group_id.in_(related_ids))
-  return None
-
-
 def get_special_mappings(object_type, related_type, related_ids):
   return [
       acl_obj_id(object_type, related_type, related_ids),
-      task_group_object(object_type, related_type, related_ids),
       custom_attribute_mapping(object_type, related_type, related_ids),
   ]
 

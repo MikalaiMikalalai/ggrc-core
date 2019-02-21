@@ -48,11 +48,10 @@ blueprint = Blueprint(
 for type_ in WORKFLOW_OBJECT_TYPES:
   model = getattr(all_models, type_)
   model.__bases__ = (
-      models.task_group_object.TaskGroupable,
+      models.task_group.TaskGroupable,
       models.cycle_task_group_object_task.CycleTaskable,
       models.workflow.WorkflowState,
   ) + model.__bases__
-  model.late_init_task_groupable()
 
 
 def get_public_config(current_user):  # noqa

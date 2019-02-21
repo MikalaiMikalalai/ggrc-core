@@ -94,7 +94,6 @@ def all_cache_entries():
       resource('cycle_task_group_object_tasks', 'CycleTaskGroupObjectTask'),
       resource('cycle_task_groups', 'CycleTaskGroup'),
       resource('cycles', 'Cycle'),
-      resource('task_group_objects', 'TaskGroupObject'),
       resource('task_group_tasks', 'TaskGroupTask'),
       resource('task_groups', 'TaskGroup'),
       resource('workflows', 'Workflow'),
@@ -119,8 +118,6 @@ def all_mapping_entries():
       mapping('Notification', 'recipients'),
       mapping('Notification', 'notification_object'),
       # ggrc_workflows mappings:
-      mapping('TaskGroupObject', 'object', True),
-      mapping('TaskGroupObject', 'task_group'),
       mapping('TaskGroupTask', 'task_group'),
       mapping('TaskGroup', 'workflow'),
       mapping('Cycle', 'workflow'),

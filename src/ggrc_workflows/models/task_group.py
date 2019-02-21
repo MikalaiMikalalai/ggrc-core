@@ -4,7 +4,6 @@
 """A module containing the workflow TaskGroup model."""
 
 
-from sqlalchemy import or_
 from sqlalchemy import orm
 from sqlalchemy.ext import hybrid
 
@@ -12,16 +11,13 @@ from ggrc import db
 from ggrc.fulltext.mixin import Indexed
 from ggrc.login import get_current_user
 from ggrc.access_control import roleable
-from ggrc.models.associationproxy import association_proxy
 from ggrc.models.mixins import (
     Titled, Slugged, Described, Timeboxed, WithContact
 )
-from ggrc.models.reflection import AttributeInfo
 from ggrc.models import reflection
 from ggrc.models import relationship
 from ggrc.models import all_models
 from ggrc.models.mixins import base
-from ggrc_workflows.models.task_group_object import TaskGroupObject
 
 
 class TaskGroup(roleable.Roleable,
@@ -46,12 +42,6 @@ class TaskGroup(roleable.Roleable,
   )
   lock_task_order = db.Column(db.Boolean(), nullable=True)
 
-  task_group_objects = db.relationship(
-      'TaskGroupObject', backref='_task_group', cascade='all, delete-orphan')
-
-  objects = association_proxy(
-      'task_group_objects', 'object', 'TaskGroupObject')
-
   task_group_tasks = db.relationship(
       'TaskGroupTask', backref='_task_group', cascade='all, delete-orphan')
 
@@ -63,13 +53,9 @@ class TaskGroup(roleable.Roleable,
 
   _api_attrs = reflection.ApiAttributes(
       'workflow',
-      'task_group_objects',
-      reflection.Attribute('objects', create=False, update=False),
       'task_group_tasks',
       'lock_task_order',
       'sort_index',
-      # Intentionally do not include `cycle_task_groups`
-      # 'cycle_task_groups',
   )
 
   _aliases = {
@@ -88,11 +74,6 @@ class TaskGroup(roleable.Roleable,
           "display_name": "Workflow",
           "mandatory": True,
           "filter_by": "_filter_by_workflow",
-      },
-      "task_group_objects": {
-          "display_name": "Objects",
-          "type": AttributeInfo.Type.SPECIAL_MAPPING,
-          "filter_by": "_filter_by_objects",
       },
   }
 
@@ -136,21 +117,8 @@ class TaskGroup(roleable.Roleable,
 
     target.ensure_assignee_is_workflow_member()
 
-    if kwargs.get('clone_objects', False):
-      self.copy_objects(target, **kwargs)
-
     if kwargs.get('clone_tasks', False):
       self.copy_tasks(target, **kwargs)
-
-    return target
-
-  def copy_objects(self, target, **kwargs):
-    # pylint: disable=unused-argument
-    for task_group_object in self.task_group_objects:
-      target.task_group_objects.append(task_group_object.copy(
-          task_group=target,
-          context=target.context,
-      ))
 
     return target
 
@@ -169,7 +137,6 @@ class TaskGroup(roleable.Roleable,
   def eager_query(cls):
     query = super(TaskGroup, cls).eager_query()
     return query.options(
-        orm.Load(cls).subqueryload('task_group_objects'),
         orm.Load(cls).subqueryload('task_group_tasks')
     )
 
@@ -181,21 +148,19 @@ class TaskGroup(roleable.Roleable,
         (predicate(Workflow.slug) | predicate(Workflow.title))
     ).exists()
 
+
+class TaskGroupable(object):
+  """ Requires the Relatable mixin, otherwise task_groups
+  fail to fetch related objects
+  """
+
   @classmethod
-  def _filter_by_objects(cls, predicate):
-    parts = []
-    for model_name in all_models.__all__:
-      model = getattr(all_models, model_name)
-      query = getattr(model, "query", None)
-      field = getattr(model, "slug", getattr(model, "email", None))
-      if query is None or field is None or not hasattr(model, "id"):
-        continue
-      parts.append(query.filter(
-          (TaskGroupObject.object_type == model_name) &
-          (model.id == TaskGroupObject.object_id) &
-          predicate(field)
-      ).exists())
-    return TaskGroupObject.query.filter(
-        (TaskGroupObject.task_group_id == cls.id) &
-        or_(*parts)
-    ).exists()
+  def eager_query(cls):
+    """Eager query for objects with task groups."""
+    query = super(TaskGroupable, cls).eager_query()
+    return query.options(
+        orm.subqueryload('related_sources')
+           .joinedload('TaskGroup_source'),
+        orm.subqueryload('related_destinations')
+           .joinedload('TaskGroup_destination')
+    )
