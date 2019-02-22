@@ -139,12 +139,12 @@ class TestTaskGroupImport(WorkflowTestCase):
     result = self.import_data(tg_data)
     task_group = all_models.TaskGroup.query.one()
     if is_mapped:
-      self.assertEqual(len(task_group.task_group_objects), 1)
-      self.assertEqual(task_group.task_group_objects[0].object.slug,
+      self.assertEqual(len(task_group.related_destinations), 1)
+      self.assertEqual(task_group.related_destinations[0].object.slug,
                        mapped_slug)
       self.assertEqual(len(result[0]['row_warnings']), 0)
     else:
-      self.assertEqual(len(task_group.task_group_objects), 0)
+      self.assertEqual(len(task_group.related_destinations), 0)
       self.assertEqual(len(result[0]['row_warnings']), 1)
       self.assertEqual(
           result[0]['row_warnings'][0],

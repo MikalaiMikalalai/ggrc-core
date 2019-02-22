@@ -577,7 +577,6 @@ class TestBasicWorkflowActions(TestCase):
                     "title": factories.random_str(),
                     "description": factories.random_str(100)
                 }],
-                "task_group_objects": []
             }
         ]
     }

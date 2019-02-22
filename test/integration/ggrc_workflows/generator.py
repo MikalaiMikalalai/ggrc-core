@@ -13,7 +13,6 @@ from ggrc.access_control import role
 from ggrc.models import Person
 from ggrc_workflows.models import Cycle
 from ggrc_workflows.models import TaskGroup
-from ggrc_workflows.models import TaskGroupObject
 from ggrc_workflows.models import TaskGroupTask
 from ggrc_workflows.models import Workflow
 from integration.ggrc.access_control import acl_helper
@@ -63,7 +62,6 @@ class WorkflowsGenerator(Generator):
     data = copy.deepcopy(data)
 
     tgts = data.pop("task_group_tasks", [])
-    tgos = data.pop("task_group_objects", [])
 
     obj_name = "task_group"
     workflow = self._session_add(workflow)
@@ -81,8 +79,6 @@ class WorkflowsGenerator(Generator):
 
     for tgt in tgts:
       self.generate_task_group_task(task_group, tgt)
-    for tgo in tgos:
-      self.generate_task_group_object(task_group, tgo)
 
     return response, task_group
 
@@ -115,25 +111,6 @@ class WorkflowsGenerator(Generator):
           acl_helper.get_acl_json(cycle_task_role_id, wf_admin_id)]
     obj_dict[obj_name].update(data)
     return self.generate(TaskGroupTask, obj_name, obj_dict)
-
-  def generate_task_group_object(self, task_group=None, obj=None):
-    """Generate task group object."""
-    if not task_group:
-      _, task_group = self.generate_task_group()
-    task_group = self._session_add(task_group)
-    obj = self._session_add(obj)
-
-    obj_name = "task_group_object"
-
-    tgo = TaskGroupObject(
-        object_id=obj.id,
-        object=obj,
-        task_group_id=task_group.id,
-        context_id=task_group.context.id
-    )
-    obj_dict = self.obj_to_dict(tgo, obj_name)
-
-    return self.generate(TaskGroupObject, obj_name, obj_dict)
 
   def generate_cycle(self, workflow=None):
     """Generate Cycle over api."""

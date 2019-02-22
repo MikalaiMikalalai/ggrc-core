@@ -69,7 +69,6 @@ class TestWorkflowStatistic(TestCase):
                 "end_date": date(2017, 8, 17),
                 }
             ],
-            "task_group_objects": []
         }, {
             "title": "task group 2",
             "contact": create_stub(first_wf_admin),
@@ -81,7 +80,6 @@ class TestWorkflowStatistic(TestCase):
                 "start_date": date(2017, 5, 5),
                 "end_date": date(2017, 8, 17),
             }],
-            "task_group_objects": []
         }]
     }
     workflow_template2 = {
@@ -119,7 +117,6 @@ class TestWorkflowStatistic(TestCase):
                 "start_date": date(2017, 5, 5),
                 "end_date": date(2017, 8, 14)
             }],
-            "task_group_objects": []
         }]
     }
     with factories.single_commit():

@@ -289,11 +289,11 @@ def build_cycle(workflow, cycle=None, current_user=None):
       for task_group_task in task_group.task_group_tasks:
         cycle_task_group_object_task = _create_cycle_task(
             task_group_task, cycle, cycle_task_group, current_user)
-
-        for task_group_object in task_group.task_group_objects:
-          object_ = task_group_object.object
+        related_objs = [obj for obj in task_group.related_objects()
+                        if not isinstance(obj, all_models.TaskGroupTask)]
+        for obj in related_objs:
           Relationship(source=cycle_task_group_object_task,
-                       destination=object_)
+                       destination=obj)
 
   update_cycle_dates(cycle)
   workflow.repeat_multiplier += 1

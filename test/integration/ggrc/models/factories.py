@@ -664,7 +664,6 @@ def get_model_factory(model_name):
       "Standard": StandardFactory,
       "System": SystemFactory,
       "TaskGroup": wf_factories.TaskGroupFactory,
-      "TaskGroupObject": wf_factories.TaskGroupObjectFactory,
       "TaskGroupTask": wf_factories.TaskGroupTaskFactory,
       "TechnologyEnvironment": TechnologyEnvironmentFactory,
       "Threat": ThreatFactory,

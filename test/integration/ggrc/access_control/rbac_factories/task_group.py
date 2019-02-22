@@ -85,17 +85,11 @@ class TaskGroupRBACFactory(base.BaseRBACFactory):
     """Map Control on which user don't have any rights to Cycle Task."""
     task_group = all_models.TaskGroup.query.get(self.task_group_id)
     control = factories.ControlFactory()
-    return self.api.post(all_models.TaskGroupObject, {
-        "task_group_object": {
-            "context": None,
-            "object": {
-                "id": control.id,
-                "type": "Control",
-            },
-            "task_group": {
-                "id": task_group.id,
-                "type": "TaskGroup",
-            },
+    return self.api.post(all_models.Relationship, {
+        "relationship": {
+            "source": {"id": task_group.id, "type": task_group.type},
+            "destination": {"id": control.id, "type": control.type},
+            "context": None
         }
     })
 
@@ -110,17 +104,11 @@ class TaskGroupRBACFactory(base.BaseRBACFactory):
               person_id=self.user_id,
               ac_list=acl,
           )
-    return self.api.post(all_models.TaskGroupObject, {
-        "task_group_object": {
-            "context": None,
-            "object": {
-                "id": control.id,
-                "type": "Control",
-            },
-            "task_group": {
-                "id": task_group.id,
-                "type": "TaskGroup",
-            },
+    return self.api.post(all_models.Relationship, {
+        "relationship": {
+            "source": {"id": task_group.id, "type": task_group.type},
+            "destination": {"id": control.id, "type": control.type},
+            "context": None
         }
     })
 
@@ -129,8 +117,8 @@ class TaskGroupRBACFactory(base.BaseRBACFactory):
     task_group = all_models.TaskGroup.query.get(self.task_group_id)
     with factories.single_commit():
       control = factories.ControlFactory()
-      wf_factories.TaskGroupObjectFactory(
-          task_group=task_group, object=control
+      factories.RelationshipFactory(
+          source=task_group, destination=control
       )
     return self.api.get(control, control.id)
 
@@ -139,8 +127,8 @@ class TaskGroupRBACFactory(base.BaseRBACFactory):
     task_group = all_models.TaskGroup.query.get(self.task_group_id)
     with factories.single_commit():
       control = factories.ControlFactory()
-      tg_obj = wf_factories.TaskGroupObjectFactory(
-          task_group=task_group, object=control
+      tg_obj = factories.RelationshipFactory(
+          source=task_group, destination=control
       )
     return self.api.delete(tg_obj)
 

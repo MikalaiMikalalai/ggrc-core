@@ -31,16 +31,6 @@ class TaskGroupFactory(TitledFactory):
   context = factory.LazyAttribute(lambda tg: tg.workflow.context)
 
 
-class TaskGroupObjectFactory(ModelFactory):
-
-  class Meta:
-    model = models.TaskGroupObject
-
-  task_group = factory.SubFactory(TaskGroupFactory)
-  object_id = 0
-  object_type = ""
-
-
 class TaskGroupTaskFactory(TitledFactory):
 
   class Meta:

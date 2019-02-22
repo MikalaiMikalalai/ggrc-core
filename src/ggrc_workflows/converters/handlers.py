@@ -10,6 +10,7 @@ from ggrc import db
 from ggrc.converters import errors
 from ggrc.converters.handlers import boolean
 from ggrc.converters.handlers import handlers
+from ggrc.converters.handlers import multi_object
 from ggrc.models import all_models
 from ggrc_workflows import models as wf_models
 
@@ -164,6 +165,59 @@ class TaskTypeColumnHandler(handlers.ColumnHandler):
                                 "rich text").title()
 
 
+class ObjectsColumnHandler(multi_object.ObjectsColumnHandler):
+  MAPABLE_OBJECTS = (
+      all_models.OrgGroup.__name__,
+      all_models.Vendor.__name__,
+      all_models.AccessGroup.__name__,
+      all_models.System.__name__,
+      all_models.Process.__name__,
+      all_models.DataAsset.__name__,
+      all_models.Product.__name__,
+      all_models.Project.__name__,
+      all_models.Facility.__name__,
+      all_models.Market.__name__,
+      all_models.Program.__name__,
+      all_models.Regulation.__name__,
+      all_models.Policy.__name__,
+      all_models.Standard.__name__,
+      all_models.Contract.__name__,
+      all_models.Requirement.__name__,
+      all_models.Control.__name__,
+      all_models.Objective.__name__,
+      all_models.Issue.__name__,
+      all_models.Metric.__name__,
+      all_models.TechnologyEnvironment.__name__,
+      all_models.ProductGroup.__name__,
+      all_models.Risk.__name__,
+      all_models.Threat.__name__,
+      all_models.KeyReport.__name__,
+  )
+
+  def get_value(self):
+    tg_rel_objects = wf_models.TaskGroup.eager_query.filter_by(
+        id=self.row_converter.id).all()
+    lines = ["{}: {}".format(obj._inflector.title_singular.title(),
+                             obj.slug)
+             for obj in tg_rel_objects.related_destinations if obj is not None]
+    return "\n".join(lines)
+
+  def insert_object(self):
+    obj = self.row_converter.obj
+    existing = set((t.object_type, t.object_id)
+                   for t in obj.task_group_objects)
+    for object_ in self.value:
+      if (object_.type, object_.id) in existing:
+        continue
+      tgo = wf_models.TaskGroupObject(
+          task_group=obj,
+          object=object_,
+          context=obj.context,
+      )
+      db.session.add(tgo)
+    db.session.flush()
+
+
 class CycleWorkflowColumnHandler(handlers.ExportOnlyColumnHandler):
 
   def get_value(self):
@@ -205,6 +259,7 @@ COLUMN_HANDLERS = {
         "notify_on_change": boolean.CheckboxColumnHandler,
         "task_description": TaskDescriptionColumnHandler,
         "task_group": TaskGroupColumnHandler,
+        "task_group_objects": ObjectsColumnHandler,
         "task_type": TaskTypeColumnHandler,
         "workflow": WorkflowColumnHandler,
         "finished_date": handlers.NullableDateColumnHandler,

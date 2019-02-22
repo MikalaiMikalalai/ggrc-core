@@ -66,7 +66,6 @@ class TestSnapshotQueryApi(TestCase):
       "related_destinations",
       "related_sources",
       "risks",
-      "task_group_objects",
       "task_group_tasks",
       "task_groups",
 

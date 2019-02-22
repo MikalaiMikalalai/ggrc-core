@@ -23,7 +23,7 @@ from ggrc.migrations.utils\
 
 # revision identifiers, used by Alembic.
 revision = 'f53a6dc80a57'
-down_revision = '57b14cb4a7b4'
+down_revision = 'a8a44ea42a2b91'
 
 
 def load_data(conn):
