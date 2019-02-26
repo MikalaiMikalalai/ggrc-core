@@ -48,7 +48,6 @@ blueprint = Blueprint(
 for type_ in WORKFLOW_OBJECT_TYPES:
   model = getattr(all_models, type_)
   model.__bases__ = (
-      models.task_group.TaskGroupable,
       models.cycle_task_group_object_task.CycleTaskable,
       models.workflow.WorkflowState,
   ) + model.__bases__
@@ -289,7 +288,7 @@ def build_cycle(workflow, cycle=None, current_user=None):
       for task_group_task in task_group.task_group_tasks:
         cycle_task_group_object_task = _create_cycle_task(
             task_group_task, cycle, cycle_task_group, current_user)
-        related_objs = [obj for obj in task_group.related_objects()
+        related_objs = [obj for obj in task_group.related_destinations
                         if not isinstance(obj, all_models.TaskGroupTask)]
         for obj in related_objs:
           Relationship(source=cycle_task_group_object_task,

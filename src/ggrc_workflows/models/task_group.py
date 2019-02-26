@@ -147,20 +147,3 @@ class TaskGroup(roleable.Roleable,
         (Workflow.id == cls.workflow_id) &
         (predicate(Workflow.slug) | predicate(Workflow.title))
     ).exists()
-
-
-class TaskGroupable(object):
-  """ Requires the Relatable mixin, otherwise task_groups
-  fail to fetch related objects
-  """
-
-  @classmethod
-  def eager_query(cls):
-    """Eager query for objects with task groups."""
-    query = super(TaskGroupable, cls).eager_query()
-    return query.options(
-        orm.subqueryload('related_sources')
-           .joinedload('TaskGroup_source'),
-        orm.subqueryload('related_destinations')
-           .joinedload('TaskGroup_destination')
-    )
