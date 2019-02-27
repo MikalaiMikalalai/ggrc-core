@@ -52,24 +52,6 @@ def get_task_group_post_dict(workflow, contact):
   }
 
 
-def get_task_group_object_post_dict(task_group, obj_map):
-  """Get TaskGroupObject JSON representation for POST API call.
-
-  Args:
-      task_group: TaskGroup instance which TaskGroupObject should belong to.
-      obj_map: Object which should be mapped to TaskGroup.
-  Returns:
-      TaskGroupObject object dict representation for using in POST request.
-  """
-  return {
-      "task_group_object": {
-          "context": utils.create_stub(task_group.context),
-          "task_group": utils.create_stub(task_group),
-          "object": utils.create_stub(obj_map),
-      }
-  }
-
-
 def get_task_post_dict(task_group, people_roles, start_date, end_date):
   """Get TaskGroupTask JSON representation for POST API call.
 

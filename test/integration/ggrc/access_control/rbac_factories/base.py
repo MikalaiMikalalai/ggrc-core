@@ -62,7 +62,7 @@ class BaseRBACFactory(object):
       self.task = wf_factories.TaskGroupTaskFactory(task_group=self.task_group)
       self.task_id = self.task.id
       self.assign_person(self.task, acr, user_id)
-
+    # import pdb; pdb.set_trace()
     self.generate_cycle(self.workflow_id)
     cycle_task = all_models.CycleTaskGroupObjectTask.query.first()
     self.cycle_task_id = cycle_task.id

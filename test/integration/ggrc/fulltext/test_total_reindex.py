@@ -49,7 +49,6 @@ class TestTotalReindex(TestCase):
       'Program': 8,
       'Regulation': 10,
       'TaskGroup': 4,
-      'TaskGroupObject': 5,
       'TaskGroupTask': 4,
       'Workflow': 6,
       'TechnologyEnvironment': 8,

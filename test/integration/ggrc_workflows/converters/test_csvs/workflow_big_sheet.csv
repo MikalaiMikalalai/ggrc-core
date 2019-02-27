@@ -65,20 +65,18 @@ user@example.com",http://i.imgur.com/SiuyNdp.jpg,objective-4,Active,"control-1
 control-3",,
 ,,,,,,,,,,
 Object type,,,,,,,,,,
-Task Group,code*,Summary*,details,assignee,workflow*,Objects,,,,
-,tg-1,Task Group Summary over 9000,test,user1@ggrc.com,wf-1,"Policy:p1
-Regulation: reg-1",,,,
-,tg-2,Task Group Summary over 9001,test,user1@ggrc.com,wf-2,objective:objective-1,,,,
+Task Group,code*,Summary*,details,assignee,workflow*,map:policy,map:regulation,map:objective,map:contract,,,,
+,tg-1,Task Group Summary over 9000,test,user1@ggrc.com,wf-1,"p1","reg-1",,,,,
+,tg-2,Task Group Summary over 9001,test,user1@ggrc.com,wf-2,,,"objective-1",,,,
 ,tg-3,Task Group Summary over 9002,test,user1@ggrc.com,wf-3,,,,,
 ,tg-4,Task Group Summary over 9003,test,user1@ggrc.com,wf-4,,,,,
 ,tg-5,Task Group Summary over 9004,test,user1@ggrc.com,wf-5,,,,,
-,tg-6,Task Group Summary over 9005,test,user1@ggrc.com,wf-1,"contract: contract-25
-contract: contract-26
-contract: contract-27
-contract: contract-28
-contract: contract-29
-Policy:p2
-policy: p3",,,,
+,tg-6,Task Group Summary over 9005,test,user1@ggrc.com,wf-1,"p2
+p3",,,"contract-25
+contract-26
+contract-27
+contract-28
+contract-29",,,,
 ,tg-7,Task Group Summary over 9006,test,user1@ggrc.com,wf-2,,,,,
 ,tg-8,Task Group Summary over 9007,test,user1@ggrc.com,wf-3,,,,,
 ,tg-9,Task Group Summary over 9008,test,user1@ggrc.com,wf-4,,,,,

@@ -163,8 +163,7 @@ def _all_rules():
       "Control": all_models,
       "CycleTaskGroupObjectTask": ((all_models | {'Audit'}) -
                                    {'CycleTaskGroupObjectTask'}),
-      "TaskGroup": all_models - {'CycleTaskGroupObjectTask', 'OrgGroup',
-                                 'Person'},
+      "TaskGroup": all_models - {'CycleTaskGroupObjectTask', 'Person'},
       "DataAsset": all_models,
       "Facility": all_models,
       "Market": all_models,

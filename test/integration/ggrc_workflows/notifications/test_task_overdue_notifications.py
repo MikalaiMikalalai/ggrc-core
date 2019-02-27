@@ -302,7 +302,6 @@ class TestTaskOverdueNotificationsUsingAPI(TestTaskOverdueNotifications):
                 "access_control_list": [
                     acl_helper.get_acl_json(role_id, self.user.id)],
             }],
-            "task_group_objects": self.random_objects
         }]
     }
 

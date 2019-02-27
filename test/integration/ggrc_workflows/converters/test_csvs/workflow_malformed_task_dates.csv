@@ -7,9 +7,9 @@ Workflow,code*,title*,description ,admin,unit,repeat every,force real-time email
 ,wf-1,wf-1,test,user1@ggrc.com,Month,12,no,this is super custom ,True
 ,,,,,,,,,
 Object type,,,,,,,,,
-Task Group,code*,Summary*,details,assignee,workflow*,Objects,,,
-,tg-1,tg-1,test,user1@ggrc.com,wf-1,"Objective: obj-1
-objective : obj-3",,,
+Task Group,code*,Summary*,details,assignee,workflow*,map:objective,,,
+,tg-1,tg-1,test,user1@ggrc.com,wf-1,"obj-1
+obj-3",,,
 ,,,,,,,,,
 Object type,,,,,,,,,
 Task,code*,Summary*,task group,task description,task assignee*,task type,start date,end date,

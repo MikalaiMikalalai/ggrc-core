@@ -12,7 +12,6 @@ from ggrc.models import all_models
 from ggrc.access_control import role
 from ggrc_workflows.models import Workflow
 from ggrc_workflows.models import TaskGroup
-from ggrc_workflows.models import TaskGroupObject
 from ggrc_workflows.models import TaskGroupTask
 from ggrc_workflows.models import Cycle
 from ggrc_workflows.models import CycleTaskGroup
@@ -69,10 +68,6 @@ class GlobalEditorReaderGetTest(WorkflowRolesTestCase):
     task_group_res = self.api.get(TaskGroup, self.first_task_group.id)
     self.assert200_helper(task_group_res)
 
-    task_group_object_res = self.api.get(
-        TaskGroupObject, self.first_task_group_object.id)
-    self.assert200_helper(task_group_object_res)
-
     task_group_task_res = self.api.get(
         TaskGroupTask, self.first_task_group_task.id)
     self.assert200_helper(task_group_task_res)
@@ -92,10 +87,6 @@ class GlobalEditorReaderGetTest(WorkflowRolesTestCase):
 
     task_group_res = self.api.get(TaskGroup, self.first_task_group.id)
     self.assert200_helper(task_group_res)
-
-    task_group_object_res = self.api.get(
-        TaskGroupObject, self.first_task_group_object.id)
-    self.assert200_helper(task_group_object_res)
 
     task_group_task_res = self.api.get(
         TaskGroupTask, self.first_task_group_task.id)

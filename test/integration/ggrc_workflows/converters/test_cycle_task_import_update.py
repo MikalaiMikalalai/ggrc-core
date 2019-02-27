@@ -156,8 +156,10 @@ class TestCycleTaskImportUpdate(BaseTestCycleTaskImportUpdate):
       _, tg = self.wf_generator.generate_task_group(wf, task_group)
       for task in task_group_tasks:
         self.wf_generator.generate_task_group_task(tg, task)
-      self.wf_generator.generate_task_group_object(tg, random_object)
-
+      ggrc_factories.RelationshipFactory(
+          source=tg,
+          destination=random_object
+      )
       _, cycle = self.wf_generator.generate_cycle(wf)
       self.wf_generator.activate_workflow(wf)
 

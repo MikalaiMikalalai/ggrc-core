@@ -8,7 +8,6 @@ owned by Admin.
 
 from ggrc_workflows.models import Workflow
 from ggrc_workflows.models import TaskGroup
-from ggrc_workflows.models import TaskGroupObject
 from ggrc_workflows.models import TaskGroupTask
 from ggrc_workflows.models import Cycle
 from ggrc_workflows.models import CycleTaskGroup
@@ -33,10 +32,6 @@ class GlobalCreatorGetTest(WorkflowRolesTestCase):
     task_group_res = self.api.get(TaskGroup, self.first_task_group.id)
     self.assert403(task_group_res)
 
-    task_group_object_res = self.api.get(
-        TaskGroupObject, self.first_task_group_object.id)
-    self.assert403(task_group_object_res)
-
     task_group_task_res = self.api.get(
         TaskGroupTask, self.first_task_group_task.id)
     self.assert403(task_group_task_res)
@@ -52,10 +47,6 @@ class GlobalCreatorGetTest(WorkflowRolesTestCase):
 
     task_group_res = self.api.get(TaskGroup, self.first_task_group.id)
     self.assert403(task_group_res)
-
-    task_group_object_res = self.api.get(
-        TaskGroupObject, self.first_task_group_object.id)
-    self.assert403(task_group_object_res)
 
     task_group_task_res = self.api.get(
         TaskGroupTask, self.first_task_group_task.id)

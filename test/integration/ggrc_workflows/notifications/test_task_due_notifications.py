@@ -118,7 +118,6 @@ class TestTaskDueNotifications(TestCase):
                 "start_date": date(2017, 6, 8),
                 "end_date": date(2017, 6, 15),
             }],
-            "task_group_objects": self.random_objects
         }]
     }
 

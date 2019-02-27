@@ -8,7 +8,6 @@ from ggrc import db
 from ggrc.access_control import role
 from ggrc_workflows.models import TaskGroup
 from ggrc_workflows.models import TaskGroupTask
-from ggrc_workflows.models import TaskGroupObject
 from ggrc_workflows.models import Workflow
 from integration.ggrc.access_control import acl_helper
 from integration.ggrc_workflows import WorkflowTestCase
@@ -35,8 +34,6 @@ class WorkflowRolesTestCase(WorkflowTestCase):
     """ Get the first object from the database set them as attributes """
     self.first_task_group = self.get_task_groups(self.workflow_obj.id)[0]
     self.first_task_group_task = self.get_task_group_tasks(
-        self.first_task_group.id)[0]
-    self.first_task_group_object = self.get_task_group_objects(
         self.first_task_group.id)[0]
 
   def init_users(self):
@@ -78,7 +75,6 @@ class WorkflowRolesTestCase(WorkflowTestCase):
                 "start_date": date(2016, 5, 26),
                 "end_date": date(2016, 5, 28),
             }],
-            "task_group_objects": self.random_objects[:2]
         }]
     }
 
@@ -123,19 +119,6 @@ class WorkflowRolesTestCase(WorkflowTestCase):
         .all()
 
     return task_group_tasks
-
-  def get_task_group_objects(self, task_group_id):
-    """ Gets al the task group objects in a task group.
-    Args:
-        taks_group_id: Integer.
-    Returns:
-        List of TaskGroupObject model instances
-    """
-    task_group_objects = self.session.query(TaskGroupObject)\
-        .filter(TaskGroupTask.task_group_id == task_group_id)\
-        .all()
-
-    return task_group_objects
 
   def person_dict(self, person_id):
     """ Get person JSON representation.

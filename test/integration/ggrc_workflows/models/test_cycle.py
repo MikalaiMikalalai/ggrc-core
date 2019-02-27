@@ -61,8 +61,8 @@ class TestCycleApiCalls(workflow_test_case.WorkflowTestCase):
       mapped_object = factories.get_model_factory(model_name)()
       task_group = wf_factories.TaskGroupFactory()
       wf_factories.TaskGroupTaskFactory(task_group=task_group)
-      wf_factories.TaskGroupObjectFactory(task_group=task_group,
-                                          object=mapped_object)
+      factories.RelationshipFactory(source=task_group,
+                                    destination=mapped_object)
     mapped_object_id = mapped_object.id
 
     data = workflow_api.get_cycle_post_dict(task_group.workflow)
@@ -72,5 +72,9 @@ class TestCycleApiCalls(workflow_test_case.WorkflowTestCase):
 
     cycle_id = response.json.get("cycle", {}).get("id")
     cycle = all_models.Cycle.query.filter_by(id=cycle_id).first()
-    obj = cycle.cycle_task_groups[0].task_group.task_group_objects[0].object
-    self.assertEquals(obj.id, mapped_object_id)
+    mapped_objs = filter(
+        lambda obj: obj.__class__.__name__ == model_name,
+        cycle.cycle_task_groups[0].task_group.related_objects()
+    )
+    obj_id = mapped_objs.pop().id
+    self.assertEquals(obj_id, mapped_object_id)

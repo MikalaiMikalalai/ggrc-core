@@ -94,36 +94,37 @@ class TestTaskGroupImport(WorkflowTestCase):
     self.assertFalse(task_group.contact)
 
   @ddt.data(
-      (all_models.OrgGroup.__name__, True),
-      (all_models.Vendor.__name__, True),
-      (all_models.AccessGroup.__name__, True),
-      (all_models.System.__name__, True),
-      (all_models.Process.__name__, True),
-      (all_models.DataAsset.__name__, True),
-      (all_models.Product.__name__, True),
-      (all_models.Project.__name__, True),
-      (all_models.Facility.__name__, True),
-      (all_models.Market.__name__, True),
-      (all_models.Program.__name__, True),
-      (all_models.Regulation.__name__, True),
-      (all_models.Policy.__name__, True),
-      (all_models.Standard.__name__, True),
-      (all_models.Contract.__name__, True),
-      (all_models.Requirement.__name__, True),
-      (all_models.Control.__name__, True),
-      (all_models.Objective.__name__, True),
-      (all_models.Issue.__name__, True),
-      (all_models.Risk.__name__, True),
-      (all_models.Threat.__name__, True),
-      (all_models.Assessment.__name__, False),
-      (all_models.Audit.__name__, False),
-      (all_models.Metric.__name__, True),
-      (all_models.ProductGroup.__name__, True),
-      (all_models.TechnologyEnvironment.__name__, True),
-      (all_models.KeyReport.__name__, True),
+      (all_models.OrgGroup.__name__, "org group", True),
+      (all_models.Vendor.__name__, "vendor", True),
+      (all_models.AccessGroup.__name__, "access group", True),
+      (all_models.System.__name__, "system", True),
+      (all_models.Process.__name__, "process", True),
+      (all_models.DataAsset.__name__, "data asset", True),
+      (all_models.Product.__name__, "product", True),
+      (all_models.Project.__name__, "project", True),
+      (all_models.Facility.__name__, "facility", True),
+      (all_models.Market.__name__, "market", True),
+      (all_models.Program.__name__, "program", True),
+      (all_models.Regulation.__name__, "regulation", True),
+      (all_models.Policy.__name__, "policy", True),
+      (all_models.Standard.__name__, "standard", True),
+      (all_models.Contract.__name__, "contract", True),
+      (all_models.Requirement.__name__, "requirement", True),
+      (all_models.Control.__name__, "control", True),
+      (all_models.Objective.__name__, "objective", True),
+      (all_models.Issue.__name__, "issue", True),
+      (all_models.Risk.__name__, "risk", True),
+      (all_models.Threat.__name__, "threat", True),
+      (all_models.Assessment.__name__, "assessment", False),
+      (all_models.Audit.__name__, "audit", False),
+      (all_models.Metric.__name__, "metric", True),
+      (all_models.ProductGroup.__name__, "product group", True),
+      (all_models.TechnologyEnvironment.__name__,
+       "technology environment", True),
+      (all_models.KeyReport.__name__, "key report", True),
   )
   @ddt.unpack
-  def test_task_group_import_objects(self, model_name, is_mapped):
+  def test_task_group_import_objects(self, model_name, header_name, is_mapped):
     """"Tests import TaskGroup with mapping to object: {0}."""
 
     mapped_slug = "MAPPEDOBJECT-1"
@@ -134,22 +135,24 @@ class TestTaskGroupImport(WorkflowTestCase):
         ("object_type", all_models.TaskGroup.__name__),
         ("code", self.TG_SLUG),
         ("workflow", self.WF_SLUG),
-        ("objects", "{}: {}".format(model_name, mapped_slug))
+        ("map:{}".format(header_name), "{}".format(mapped_slug))
     ])
     result = self.import_data(tg_data)
     task_group = all_models.TaskGroup.query.one()
+    mapped_objs = filter(lambda obj: obj.__class__.__name__ == model_name,
+                         task_group.related_objects())
     if is_mapped:
-      self.assertEqual(len(task_group.related_destinations), 1)
-      self.assertEqual(task_group.related_destinations[0].object.slug,
+      self.assertEqual(len(mapped_objs), 1)
+      self.assertEqual(mapped_objs.pop().slug,
                        mapped_slug)
       self.assertEqual(len(result[0]['row_warnings']), 0)
     else:
-      self.assertEqual(len(task_group.related_destinations), 0)
-      self.assertEqual(len(result[0]['row_warnings']), 1)
+      self.assertEqual(len(mapped_objs), 0)
+      self.assertEqual(len(result[0]['block_warnings']), 1)
       self.assertEqual(
-          result[0]['row_warnings'][0],
+          result[0]['block_warnings'][0],
           errors.INVALID_TASKGROUP_MAPPING_WARNING.format(
-              line=3, object_class=model_name
+              line=2, header_name=header_name
           )
       )
 

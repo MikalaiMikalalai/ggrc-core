@@ -57,7 +57,7 @@ class TestRecurringCyclesEvent(TestCase):
 
     self.assertEqual(new_cycles_count, self.cycles_count + 2)
     self.assertEqual(len(events), 1)
-    self.assertEqual(len(events[0].revisions), 30)
+    self.assertEqual(len(events[0].revisions), 28)
 
   def test_event_is_not_created(self):
     """Test no event created."""

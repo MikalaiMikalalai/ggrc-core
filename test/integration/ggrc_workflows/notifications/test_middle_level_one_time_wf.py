@@ -110,9 +110,6 @@ class TestOneTimeWorkflowNotification(TestCase):
           "end_date": "04/15/2015",
       })
 
-      self.wf_generator.generate_task_group_object(tg, self.random_objects[0])
-      self.wf_generator.generate_task_group_object(tg, self.random_objects[1])
-
     # test
     with freeze_time("2015-04-07 03:21:34"):
       cycle_response, cycle = self.wf_generator.generate_cycle(wf)
@@ -190,7 +187,6 @@ class TestOneTimeWorkflowNotification(TestCase):
                 "start_date": date(2015, 5, 4),
                 "end_date": date(2015, 5, 7),
             }],
-            "task_group_objects": self.random_objects[:2]
         }, {
             "title": "another one time task group",
             "task_group_tasks": [{
@@ -206,7 +202,6 @@ class TestOneTimeWorkflowNotification(TestCase):
                 "start_date": date(2015, 5, 1),  # friday
                 "end_date": date(2015, 5, 5),
             }],
-            "task_group_objects": []
         }]
     }
 

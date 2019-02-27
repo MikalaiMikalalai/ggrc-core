@@ -20,7 +20,6 @@ from integration.ggrc.models import factories
 from ggrc import db
 from ggrc.converters import errors
 from ggrc_workflows.models.task_group import TaskGroup
-from ggrc_workflows.models.task_group_object import TaskGroupObject
 from ggrc_workflows.models.task_group_task import TaskGroupTask
 from ggrc_workflows.models.workflow import Workflow
 
@@ -45,7 +44,12 @@ class TestWorkflowObjectsImport(TestCase):
     self.assertEqual(1, Workflow.query.count())
     self.assertEqual(1, TaskGroup.query.count())
     self.assertEqual(4, TaskGroupTask.query.count())
-    self.assertEqual(2, TaskGroupObject.query.count())
+    task_group = TaskGroup.query.first()
+    mapped_objs = filter(
+        lambda rel: rel.destination_type != 'TaskGroupTask',
+        task_group.related_destinations
+    )
+    self.assertEqual(2, len(mapped_objs))
 
     task2 = TaskGroupTask.query.filter_by(slug="t-2").first()
     task3 = TaskGroupTask.query.filter_by(slug="t-3").first()
