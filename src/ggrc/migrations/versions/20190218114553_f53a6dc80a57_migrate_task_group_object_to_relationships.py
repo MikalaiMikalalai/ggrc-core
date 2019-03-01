@@ -51,7 +51,7 @@ def load_data(conn):
       ) as rel_union
       ON
           rel_union.destination_id=tgo.id
-      JOIN(
+      LEFT OUTER JOIN(
           SELECT
               acl.id,
               acl.object_id,
@@ -70,8 +70,8 @@ def load_data(conn):
 
 
 def create_relationship(conn, task_group_id, destination_id, destination_type,
-                        migrator_id, parent_id, context_id):
-  """Create relationship between new Comment and CycleTaskGroupObjectTask"""
+                        migrator_id, context_id):
+  """Create relationship between mapped object and TaskGroup"""
   sql = """
       INSERT INTO relationships(
           modified_by_id,
@@ -81,6 +81,7 @@ def create_relationship(conn, task_group_id, destination_id, destination_type,
           source_type,
           destination_id,
           destination_type,
+          context_id
       ) VALUES (
           :modified_by_id,
           NOW(),
@@ -89,7 +90,7 @@ def create_relationship(conn, task_group_id, destination_id, destination_type,
           :source_type,
           :destination_id,
           :destination_type,
-          :parent_id
+          :context_id
       )
   """
   conn.execute(
@@ -99,7 +100,6 @@ def create_relationship(conn, task_group_id, destination_id, destination_type,
       source_type="TaskGroup",
       destination_id=destination_id,
       destination_type=destination_type,
-      parent_id=parent_id,
       context_id=context_id
   )
   rel_id = utils.last_insert_id(conn)
@@ -108,7 +108,7 @@ def create_relationship(conn, task_group_id, destination_id, destination_type,
 
 
 def add_relationship_acl(conn, object_id, user_id, acr_id):
-  """Create Comment Admin ACL user_id -> CycleTaskEntry.modified_by_id"""
+  """Create Admin ACL user_id -> Relationship.modified_by_id"""
   sql = """
       INSERT INTO access_control_list(
           ac_role_id,
@@ -161,6 +161,16 @@ def create_acp(conn, person_id, ac_list_id):
   )
 
 
+def get_relationship_role_ids(conn):
+  """Return Relationship role ids for Admin and Workflow Member"""
+  sql = """
+      SELECT parent_id from access_control_roles
+      WHERE object_type='TaskGroupTask' AND
+      parent_id IS NOT NULL
+  """
+  return conn.execute(sa.text(sql)).fetchall()
+
+
 def remove_old_relationship(conn, data):
   """Remove old relationships"""
   old_rel_ids = [d.tgo_rel_id for d in data]
@@ -200,14 +210,14 @@ def remove_task_group_objects(conn, data):
 
 def run_data_migration():
   """Migration runner"""
+  conn = op.get_bind()
+  migrator_id = migrator.get_migration_user_id(conn)
+  data = load_data(conn)
   update_acr_propagation_tree(
       acr_propagation_constants.CURRENT_PROPAGATION,
       new_tree=acr_propagation_constants.WORKFLOW_PROPAGATION
   )
-  conn = op.get_bind()
-  migrator_id = migrator.get_migration_user_id(conn)
-  data = load_data(conn)
-
+  role_ids = get_relationship_role_ids(conn)
   for tgo in data:
     rel_id = create_relationship(
         conn,
@@ -215,15 +225,15 @@ def run_data_migration():
         tgo.tgo_object_id,
         tgo.tgo_object_type,
         migrator_id,
-        None,
         tgo.tgo_context_id
     )
-    add_relationship_acl(
-        conn,
-        rel_id,
-        tgo.tgo_modified_by_id if tgo.tgo_modified_by_id else migrator_id,
-        tgo.tgo_acr_id
-    )
+    for role_id in role_ids:
+      add_relationship_acl(
+          conn,
+          rel_id,
+          tgo.tgo_modified_by_id if tgo.tgo_modified_by_id else migrator_id,
+          role_id.parent_id
+      )
 
   remove_old_rel_revisions(conn, data)
   remove_old_relationship(conn, data)
