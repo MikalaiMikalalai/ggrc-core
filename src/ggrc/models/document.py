@@ -41,7 +41,9 @@ class Document(Roleable, Relatable, mixins.Titled,
                          'Document')
   FILE = "FILE"
   REFERENCE_URL = "REFERENCE_URL"
-  VALID_DOCUMENT_KINDS = [FILE, REFERENCE_URL]
+  URL_FOR_ARIANE = "URL_FOR_ARIANE"
+  URL_FOR_SPUR = "URL_FOR_SPUR"
+  VALID_DOCUMENT_KINDS = [FILE, REFERENCE_URL, URL_FOR_ARIANE, URL_FOR_SPUR]
 
   START_STATE = 'Active'
   DEPRECATED = 'Deprecated'

@@ -31,4 +31,6 @@ class DataAsset(Roleable,
 
   _aliases = {
       "documents_file": None,
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }

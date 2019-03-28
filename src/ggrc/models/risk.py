@@ -106,5 +106,7 @@ class Risk(Roleable,
           "mandatory": False,
           "description": "Options are: \n {}".format('\n'.join(
               mixins.BusinessObject.VALID_STATES))
-      }
+      },
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }

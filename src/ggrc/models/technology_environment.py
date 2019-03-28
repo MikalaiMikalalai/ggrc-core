@@ -28,3 +28,7 @@ class TechnologyEnvironment(mixins.CustomAttributable,
                             Indexed):
   """Representation for TechnologyEnvironment model."""
   __tablename__ = 'technology_environments'
+  _aliases = {
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
+  }

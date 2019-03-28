@@ -86,6 +86,8 @@ class Issue(Roleable,
       },
       "audit": None,
       "documents_file": None,
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }
 
   _fulltext_attrs = [

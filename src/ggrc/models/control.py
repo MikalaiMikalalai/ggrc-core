@@ -171,6 +171,8 @@ class Control(synchronizable.Synchronizable,
           "display_name": "Review Status",
           "mandatory": False
       },
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }
 
   @classmethod

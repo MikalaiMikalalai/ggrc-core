@@ -28,3 +28,7 @@ class ProductGroup(mixins.CustomAttributable,
                    Indexed):
   """Representation for ProductGroup model."""
   __tablename__ = 'product_groups'
+  _aliases = {
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
+  }

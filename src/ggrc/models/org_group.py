@@ -28,6 +28,8 @@ class OrgGroup(Roleable,
   __tablename__ = 'org_groups'
   _aliases = {
       "documents_file": None,
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }
 
   def __str__(self):

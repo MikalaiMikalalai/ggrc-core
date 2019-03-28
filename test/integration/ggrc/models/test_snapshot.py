@@ -90,6 +90,8 @@ class TestSnapshotQueryApi(TestCase):
       # while api returns only basic data in stubs
       "documents_reference_url",
       "documents_file",
+      "urls_for_ariane",
+      "urls_for_spur",
 
       # computed attributes are not stored in revisions and should be ignored.
       "attributes",

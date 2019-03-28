@@ -195,6 +195,8 @@ class AttributeInfo(object):
       "documents_file",
       "documents_url",
       "documents_reference_url",
+      "urls_for_ariane",
+      "urls_for_spur",
       "notify_custom_message",
       "frequency",
       "notify_on_change",

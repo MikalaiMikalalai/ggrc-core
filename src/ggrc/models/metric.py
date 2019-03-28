@@ -28,3 +28,7 @@ class Metric(Personable,
              db.Model):
   """Representation for Metric model."""
   __tablename__ = 'metrics'
+  _aliases = {
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
+  }

@@ -73,7 +73,9 @@ class Program(mega.Mega,
   _include_links = []
   _aliases = {
       "documents_file": None,
-      "owners": None
+      "owners": None,
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }
 
   @classmethod

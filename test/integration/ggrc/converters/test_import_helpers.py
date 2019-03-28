@@ -749,6 +749,8 @@ class TestGetObjectColumnDefinitions(TestCase):
         "Secondary Contacts",
         "Line of Defense One Contacts",
         "Vice Presidents",
+        "URL for Ariane",
+        "URL for SPUR",
     }
     names.update(self.SCOPING_ROLES)
     self._test_single_object(all_models.System, names,
@@ -781,6 +783,8 @@ class TestGetObjectColumnDefinitions(TestCase):
         "Folder",
         "Primary Contacts",
         "Secondary Contacts",
+        "URL for Ariane",
+        "URL for SPUR",
     }
     names.update(self.SCOPING_ROLES)
     self._test_single_object(all_models.Process, names,
@@ -813,6 +817,8 @@ class TestGetObjectColumnDefinitions(TestCase):
         "Folder",
         "Primary Contacts",
         "Secondary Contacts",
+        "URL for Ariane",
+        "URL for SPUR",
     }
     names.update(self.SCOPING_ROLES)
     self._test_single_object(all_models.Product, names,

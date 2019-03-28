@@ -23,6 +23,10 @@ class Documentable(object):
       MultipleSubpropertyFullTextAttr('documents_reference_url',
                                       'documents_reference_url',
                                       ['link']),
+      MultipleSubpropertyFullTextAttr('urls_for_ariane', 'urls_for_ariane',
+                                      ['link']),
+      MultipleSubpropertyFullTextAttr('urls_for_spur', 'urls_for_spur',
+                                      ['link']),
   ]
 
   @declared_attr
@@ -70,6 +74,16 @@ class Documentable(object):
     """List of documents REFERENCE_URL type"""
     return self.get_documents_by_kind(Document.REFERENCE_URL)
 
+  @property
+  def urls_for_ariane(self):
+    """List of documents of URL_FOR_ARIANE type"""
+    return self.get_documents_by_kind(Document.URL_FOR_ARIANE)
+
+  @property
+  def urls_for_spur(self):
+    """List of documents of URL_FOR_SPUR type"""
+    return self.get_documents_by_kind(Document.URL_FOR_SPUR)
+
   @classmethod
   def eager_query(cls, **kwargs):
     """Eager query classmethod."""
@@ -98,6 +112,10 @@ class Documentable(object):
     out_json["documents_file"] = self._log_docs(self.documents_file)
     out_json["documents_reference_url"] = self._log_docs(
         self.documents_reference_url)
+    out_json["urls_for_ariane"] = self._log_docs(
+        self.urls_for_ariane)
+    out_json["urls_for_spur"] = self._log_docs(
+        self.urls_for_spur)
     return out_json
 
   @classmethod
@@ -126,5 +144,15 @@ class PublicDocumentable(Documentable):
           "display_name": "Reference URL",
           "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,
           "description": "New line separated list of Reference URLs.",
+      },
+      "urls_for_ariane": {
+          "display_name": "URL for Ariane",
+          "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,
+          "description": "New line separated list of URLs for Ariane.",
+      },
+      "urls_for_spur": {
+          "display_name": "URL for SPUR",
+          "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,
+          "description": "New line separated list of URLs for SPUR.",
       },
   }

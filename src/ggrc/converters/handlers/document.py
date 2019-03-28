@@ -125,3 +125,33 @@ class DocumentFileHandler(FileHandler, handlers.ColumnHandler):
 
   files_object = "documents_file"
   file_error = errors.DISALLOW_DOCUMENT_FILE
+
+
+class UrlForArianeHandler(DocumentReferenceUrlHandler):
+  """Handler for Url for Ariane field on document imports."""
+
+  KIND = all_models.Document.URL_FOR_ARIANE
+
+  def get_value(self):
+    """Generate a new line separated string for all Url for SPUR links.
+
+    Returns:
+      string containing all URLs
+    """
+    return "\n".join(doc.link for doc in
+                     self.row_converter.obj.urls_for_ariane)
+
+
+class UrlForSPURHandler(DocumentReferenceUrlHandler):
+  """Handler for Url for SPUR field on document imports."""
+
+  KIND = all_models.Document.URL_FOR_SPUR
+
+  def get_value(self):
+    """Generate a new line separated string for all Url for Ariane links.
+
+    Returns:
+      string containing all URLs
+    """
+    return "\n".join(doc.link for doc in
+                     self.row_converter.obj.urls_for_spur)

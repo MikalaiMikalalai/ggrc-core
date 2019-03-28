@@ -36,4 +36,6 @@ class Objective(mixins.with_last_assessment_date.WithLastAssessmentDate,
   _include_links = []
   _aliases = {
       "documents_file": None,
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }

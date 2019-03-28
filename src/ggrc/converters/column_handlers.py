@@ -116,6 +116,8 @@ _DEFAULT_COLUMN_HANDLERS_DICT = {
     "test_plan_procedure": boolean.CheckboxColumnHandler,
     "title": handlers.TextColumnHandler,
     "updated_at": handlers.ExportOnlyDateColumnHandler,
+    "urls_for_ariane": document.UrlForArianeHandler,
+    "urls_for_spur": document.UrlForSPURHandler,
     "verify_frequency": handlers.OptionColumnHandler,
     "risk_type": handlers.TextColumnHandler,
     "threat_source": handlers.TextColumnHandler,

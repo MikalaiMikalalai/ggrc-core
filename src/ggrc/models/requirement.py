@@ -45,7 +45,9 @@ class Requirement(Roleable,
           "display_name": "Policy / Regulation / Standard / Contract",
           "type": reflection.AttributeInfo.Type.MAPPING,
           "filter_by": "_filter_by_directive",
-      }
+      },
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
   }
 
   notes = deferred(db.Column(db.Text, nullable=False, default=u""),
