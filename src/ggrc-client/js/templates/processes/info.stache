@@ -17,6 +17,8 @@
               {{> /static/templates/base_objects/notes.stache}}
               {{> /static/templates/base_objects/contacts.stache}}
               {{> /static/templates/base_objects/reference-urls.stache}}
+              {{> /static/templates/base_objects/urls-for-ariane.stache}}
+              {{> /static/templates/base_objects/urls-for-spur.stache}}
               {{> /static/templates/base_objects/folder-attachments.stache}}
 
               <div class="custom-attr-wrap info-pane__section">

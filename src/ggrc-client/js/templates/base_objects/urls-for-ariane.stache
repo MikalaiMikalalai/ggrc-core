@@ -1,0 +1,26 @@
+{{!
+    Copyright (C) 2019 Google Inc.
+    Licensed under http://www.apache.org/licenses/LICENSE-2.0 <see LICENSE file>
+}}
+
+{{#instance}}
+{{^readonly}}
+  <div class="row-fluid wrap-row">
+    <related-documents {instance}="{instance}" {kind}="'URL_FOR_ARIANE'">
+      <related-urls
+        {instance}="{instance}"
+        {(urls)}="{documents}"
+        {is-disabled}="{isLoading}"
+        {is-not-editable}="{isSnapshot}"
+        {is-snapshot}="{isSnapshot}"
+        (createUrl)="{createRelatedDocument(%event.payload)}"
+        (removeUrl)="{removeRelatedDocument(%event.payload)}">
+        <div class="related-urls__heading">
+          <spinner class="related-urls__spinner" {toggle}="{isLoading}"></spinner>
+          <h6 class="related-urls__title">URL for Ariane</h6>
+        </div>
+      </related-urls>
+    </related-documents>
+  </div>
+{{/readonly}}
+{{/instance}}
