@@ -72,6 +72,15 @@
     </div>
   </div>
 
+  <div class="row-fluid spacing-bottom">
+    <div class="span6 hidable">
+        {{> /static/templates/base_objects/modal-content-urls-for-ariane.stache}}
+    </div>
+    <div class="span6 hidable">
+        {{> /static/templates/base_objects/modal-content-urls-for-spur.stache}}
+    </div>
+  </div>
+
   <div class="row-fluid">
     <div data-id="folder_hidden" class="span6 hidable">
       <ggrc-gdrive-folder-picker instance:from="instance" deferred:from="true" tabindex="6">
