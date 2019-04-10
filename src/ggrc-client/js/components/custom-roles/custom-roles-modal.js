@@ -12,8 +12,8 @@ import template from './templates/custom-roles-modal.stache';
 
 export default can.Component.extend({
   tag: 'custom-roles-modal',
-  view: can.stache(template),
-  leakScope: true,
+  template: can.stache(template),
+  leakScope: false,
   viewModel: can.Map.extend({
     instance: {},
     updatableGroupId: null,

@@ -4,30 +4,27 @@
 }}
 
 <div data-id="reference_url_hidden" class="span12">
-  <deferred-mapper
-    instance:from="instance">
-    <related-documents
+  <related-documents
+    instance:from="instance"
+    kind:from="'REFERENCE_URL'"
+    autorefresh:from="false"
+    on:addMappings="addMappings(scope.event.objects)"
+    on:removeMappings="removeMappings(scope.event.object)">
+    <!-- tabindex is necessary to work of 'Hide optional field' function -->
+    <related-urls
+      tabindex="20"
       instance:from="instance"
-      kind:from="'REFERENCE_URL'"
-      autorefresh:from="false"
-      on:addMappings="addMappings(scope.event.objects)"
-      on:removeMappings="removeMappings(scope.event.object)">
-      <!-- tabindex is necessary to work of 'Hide optional field' function -->
-      <related-urls
-        tabindex="20"
-        instance:from="instance"
-        allowToRemove:from="new_object_form"
-        urls:bind="documents"
-        isDisabled:from="isLoading"
-        on:createUrl="markDocumentForAddition(scope.event.payload)"
-        on:removeUrl="markDocumentForDeletion(scope.event.payload)">
-        <label>
-          Reference URL
-          <i class="fa fa-question-circle" rel="tooltip" title="Web links to other references."></i>
-          <spinner-component toggle:from="isDisabled"></spinner-component>
-        </label>
-        <a data-id="hide_reference_url_lk" href="javascript://" class="field-hide" tabindex="-1">hide</a>
-      </related-urls>
-    </related-documents>
-  </deferred-mapper>
+      allowToRemove:from="new_object_form"
+      urls:bind="documents"
+      isDisabled:from="isLoading"
+      on:createUrl="markDocumentForAddition(scope.event.payload)"
+      on:removeUrl="markDocumentForDeletion(scope.event.payload)">
+      <label>
+        Reference URL
+        <i class="fa fa-question-circle" rel="tooltip" title="Web links to other references."></i>
+        <spinner-component toggle:from="isDisabled"></spinner-component>
+      </label>
+      <a data-id="hide_reference_url_lk" href="javascript://" class="field-hide" tabindex="-1">hide</a>
+    </related-urls>
+  </related-documents>
 </div>
