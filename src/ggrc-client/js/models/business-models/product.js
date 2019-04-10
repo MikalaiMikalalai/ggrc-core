@@ -40,6 +40,8 @@ export default Cacheable.extend({
     attr_list: Cacheable.attr_list.concat([
       {attr_title: 'Kind/Type', attr_name: 'type', attr_sort_field: 'kind'},
       {attr_title: 'Reference URL', attr_name: 'reference_url'},
+      {attr_title: 'URL for Ariane', attr_name: 'url_for_ariane'},
+      {attr_title: 'URL for SPUR', attr_name: 'url_for_spur'},
       {attr_title: 'Effective Date', attr_name: 'start_date'},
       {attr_title: 'Last Deprecated Date', attr_name: 'end_date'},
       {

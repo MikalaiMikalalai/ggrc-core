@@ -57,6 +57,8 @@ export default Cacheable.extend({
       {attr_title: 'Effective Date', attr_name: 'start_date'},
       {attr_title: 'Last Deprecated Date', attr_name: 'end_date'},
       {attr_title: 'Reference URL', attr_name: 'reference_url'},
+      {attr_title: 'URL for Ariane', attr_name: 'url_for_ariane'},
+      {attr_title: 'URL for SPUR', attr_name: 'url_for_spur'},
       {
         attr_title: 'Launch Status',
         attr_name: 'status',
