@@ -41,6 +41,8 @@ export default Cacheable.extend({
   kinds: [
     {title: 'File', value: 'FILE'},
     {title: 'Reference URL', value: 'REFERENCE_URL'},
+    {title: 'URL for Ariane', value: 'URL_FOR_ARIANE'},
+    {title: 'URL for SPUR', value: 'URL_FOR_SPUR'},
   ],
   attributes: {
     context: Stub,
