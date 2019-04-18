@@ -21,8 +21,8 @@
     <label>
       URL for SPUR
       <i class="fa fa-question-circle" rel="tooltip" title="Web links to other references."></i>
-      <a data-id="hide_reference_url_lk" href="javascript://" class="field-hide" tabindex="-1">hide</a>
       <spinner {toggle}="{isDisabled}"></spinner>
     </label>
+    <a data-id="hide_reference_url_lk" href="javascript://" class="field-hide" tabindex="-1">hide</a>
   </related-urls>
 </related-documents>
