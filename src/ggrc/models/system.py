@@ -13,7 +13,7 @@ from ggrc.models import mixins
 from ggrc.models.mixins import synchronizable
 from ggrc.models.mixins.with_ext_custom_attrs import WithExtCustomAttrsSetter
 from ggrc.models.mixins.with_readonly_access import WithReadOnlyAccess
-from ggrc.models.object_document import PublicDocumentable
+from ggrc.models.object_document import PublicDocumentableWithURLs
 from ggrc.models.object_person import Personable
 from ggrc.models.relationship import Relatable
 from ggrc.models import reflection
@@ -85,7 +85,7 @@ class System(WithExtCustomAttrsSetter,
              Personable,
              synchronizable.RoleableSynchronizable,
              Relatable,
-             PublicDocumentable,
+             PublicDocumentableWithURLs,
              SystemOrProcess,
              Indexed):
   __mapper_args__ = {
@@ -106,7 +106,7 @@ class Process(mixins.CustomAttributable,
               Personable,
               Roleable,
               Relatable,
-              PublicDocumentable,
+              PublicDocumentableWithURLs,
               SystemOrProcess,
               Indexed):
   __mapper_args__ = {

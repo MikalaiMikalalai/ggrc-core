@@ -50,8 +50,6 @@ class AccountBalance(
   _sanitize_html = ["version"]
   _aliases = {
       "documents_file": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   @classmethod

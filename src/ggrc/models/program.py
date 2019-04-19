@@ -74,8 +74,6 @@ class Program(mega.Mega,
   _aliases = {
       "documents_file": None,
       "owners": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   @classmethod

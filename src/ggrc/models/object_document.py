@@ -145,6 +145,27 @@ class PublicDocumentable(Documentable):
           "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,
           "description": "New line separated list of Reference URLs.",
       },
+      "urls_for_ariane": None,
+      "urls_for_spur": None,
+  }
+
+
+class PublicDocumentableWithURLs(Documentable):
+  _aliases = {
+      "documents_file": {
+          "display_name": "Document File",
+          "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,
+          "description": (
+              "New line separated list of evidence links and "
+              "titles.\nExample:\n\nhttp://my.gdrive.link/file "
+              "Title of the evidence link"
+          ),
+      },
+      "documents_reference_url": {
+          "display_name": "Reference URL",
+          "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,
+          "description": "New line separated list of Reference URLs.",
+      },
       "urls_for_ariane": {
           "display_name": "URL for Ariane",
           "type": reflection.AttributeInfo.Type.SPECIAL_MAPPING,

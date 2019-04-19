@@ -118,8 +118,6 @@ class Directive(mixins.LastDeprecatedTimeboxed,
   _aliases = {
       'kind': "Kind/Type",
       "documents_file": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   @validates('kind')
@@ -173,8 +171,6 @@ class Policy(review.Reviewable,
 
   _aliases = {
       "documents_file": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   # pylint: disable=unused-argument
@@ -202,8 +198,6 @@ class Regulation(review.Reviewable,
   _aliases = {
       "kind": None,
       "documents_file": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   # pylint: disable=unused-argument
@@ -231,8 +225,6 @@ class Standard(review.Reviewable,
   _aliases = {
       "kind": None,
       "documents_file": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   # pylint: disable=unused-argument
@@ -260,8 +252,6 @@ class Contract(review.Reviewable,
   _aliases = {
       "kind": None,
       "documents_file": None,
-      "urls_for_ariane": None,
-      "urls_for_spur": None,
   }
 
   # pylint: disable=unused-argument

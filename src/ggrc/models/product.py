@@ -11,7 +11,7 @@ from ggrc.fulltext.mixin import Indexed
 from ggrc.models.comment import ScopedCommentable
 from ggrc.models.deferred import deferred
 from ggrc.models import mixins
-from ggrc.models.object_document import PublicDocumentable
+from ggrc.models.object_document import PublicDocumentableWithURLs
 from ggrc.models.object_person import Personable
 from ggrc.models.option import Option
 from ggrc.models import reflection
@@ -24,7 +24,7 @@ class Product(Roleable,
               Personable,
               Relatable,
               mixins.LastDeprecatedTimeboxed,
-              PublicDocumentable,
+              PublicDocumentableWithURLs,
               ScopedCommentable,
               mixins.TestPlanned,
               mixins.base.ContextRBAC,
