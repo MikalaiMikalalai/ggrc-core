@@ -296,6 +296,14 @@ class DocumentReferenceUrlFactory(DocumentFactory):
   kind = all_models.Document.REFERENCE_URL
 
 
+class DocumentURLForArianeFactory(DocumentFactory):
+  kind = all_models.Document.URL_FOR_ARIANE
+
+
+class DocumentURLForSPURFactory(DocumentFactory):
+  kind = all_models.Document.URL_FOR_SPUR
+
+
 class EvidenceFactory(ModelFactory):
 
   class Meta:

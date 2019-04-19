@@ -286,6 +286,32 @@ class TestDocument(TestCase):
     rel_evidences = control.related_objects(_types=[document.type])
     self.assertEqual(document, rel_evidences.pop())
 
+  def test_document_url_for_ariane_with_parent(self):
+    """Document of URL_FOR_ARIANE type mapped to parent if parent specified"""
+    system = factories.SystemFactory()
+    document = factories.DocumentURLForArianeFactory(
+        description='mega description',
+        parent_obj={
+            'id': system.id,
+            'type': 'System',
+        }
+    )
+    rel_urls_for_ariane = system.related_objects(_types=[document.type])
+    self.assertEqual(document, rel_urls_for_ariane.pop())
+
+  def test_document_url_for_spur_with_parent(self):
+    """Document of URL_FOR_SPUR type mapped to parent if parent specified"""
+    system = factories.SystemFactory()
+    document = factories.DocumentURLForSPURFactory(
+        description='mega description',
+        parent_obj={
+            'id': system.id,
+            'type': 'System',
+        }
+    )
+    rel_urls_for_spur = system.related_objects(_types=[document.type])
+    self.assertEqual(document, rel_urls_for_spur.pop())
+
   def test_document_make_admin_endpoint(self):
     """Test /api/document/make_admin endpoint
 

@@ -650,7 +650,8 @@ class TestWithReadOnlyAccessImport(TestCase):
   )
   @ddt.unpack
   def test_system_add_document_on_post(self, readonly, exp_set):
-    """Test Reference URL set on post System with readonly={0}"""
+    """Test Reference URL, URL for Ariane and URL for SPUR
+    set on post System with readonly={0}"""
 
     data = OrderedDict([
         ("object_type", "System"),
@@ -661,6 +662,8 @@ class TestWithReadOnlyAccessImport(TestCase):
         ("Title", "b"),
         ("Read-only", readonly),
         ("Reference URL", "aa"),
+        ("URL for Ariane", "bb"),
+        ("URL for SPUR", "cc"),
     ])
 
     response = self.import_data(data)
