@@ -6,17 +6,17 @@
 {{#instance}}
 {{^readonly}}
   <div class="row-fluid wrap-row">
-    <related-documents {instance}="{instance}" {kind}="'URL_FOR_SPUR'">
+    <related-documents instance:from="instance" kind:from="'URL_FOR_SPUR'">
       <related-urls
-        {instance}="{instance}"
-        {(urls)}="{documents}"
-        {is-disabled}="{isLoading}"
-        {is-not-editable}="{isSnapshot}"
-        {is-snapshot}="{isSnapshot}"
-        (createUrl)="{createRelatedDocument(%event.payload)}"
-        (removeUrl)="{removeRelatedDocument(%event.payload)}">
+        instance:from="instance"
+        urls:bind="documents"
+        isDisabled:from="isLoading"
+        isNotEditable:from="isSnapshot"
+        isSnapshot:from="isSnapshot"
+        on:createUrl="createRelatedDocument(%event.payload)"
+        on:removeUrl="removeRelatedDocument(%event.payload)">
         <div class="related-urls__heading">
-          <spinner class="related-urls__spinner" {toggle}="{isLoading}"></spinner>
+          <spinner-component class="related-urls__spinner" toggle:from="isLoading"></spinner-component>
           <h6 class="related-urls__title">URL for SPUR</h6>
         </div>
       </related-urls>

@@ -181,7 +181,7 @@
   {{/case}}
 
   {{#case 'url_for_ariane'}}
-    <related-documents {instance}="{instance}" {kind}="'URL_FOR_ARIANE'">
+    <related-documents instance:from="instance" kind:from="'URL_FOR_ARIANE'">
       <div class="reference-urls-list">
         {{#each documents}}
           <span class="reference-urls-list__item">
@@ -193,7 +193,7 @@
   {{/case}}
 
   {{#case 'url_for_spur'}}
-    <related-documents {instance}="{instance}" {kind}="'URL_FOR_SPUR'">
+    <related-documents instance:from="instance" kind:from="'URL_FOR_SPUR'">
       <div class="reference-urls-list">
         {{#each documents}}
           <span class="reference-urls-list__item">

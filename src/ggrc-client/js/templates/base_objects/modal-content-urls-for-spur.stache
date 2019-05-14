@@ -4,24 +4,24 @@
 }}
 
 <related-documents 
-  {instance}="{instance}" 
-  {kind}="'URL_FOR_SPUR'" 
-  {autorefresh}="{false}"
-  (add-mappings)="{addMappings(%event.objects)}"
-  (remove-mappings)="{removeMappings(%event.object)}">
+  instance:from="instance" 
+  kind:from="'URL_FOR_SPUR'" 
+  autorefresh:from="false"
+  on:addMappings="addMappings(%event.objects)"
+  on:removeMappings="removeMappings(%event.object)">
   <!-- tabindex is necessary to work of 'Hide optional field' function -->
   <related-urls
     tabindex="22"
-    {instance}="{instance}"
-    {allow-to-remove}="{new_object_form}"
-    {(urls)}="{documents}"
-    {is-disabled}="{isLoading}"
-    (createUrl)="{markDocumentForAddition(%event.payload)}"
-    (removeUrl)="{markDocumentForDeletion(%event.payload)}">
+    instance:from="instance"
+    allowToRemove:from="new_object_form"
+    urls:bind="documents"
+    isDisabled:from="isLoading"
+    on:createUrl="markDocumentForAddition(%event.payload)"
+    on:removeUrl="markDocumentForDeletion(%event.payload)">
     <label>
       URL for SPUR
       <i class="fa fa-question-circle" rel="tooltip" title="Web links to other references."></i>
-      <spinner {toggle}="{isDisabled}"></spinner>
+      <spinner-component toggle:from="isDisabled"></spinner-component>
     </label>
     <a data-id="hide_reference_url_lk" href="javascript://" class="field-hide" tabindex="-1">hide</a>
   </related-urls>
