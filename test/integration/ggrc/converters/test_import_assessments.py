@@ -51,6 +51,43 @@ class TestAssessmentImport(TestCase):
     self.assertIn("abc", values)
     self.assertIn("2015-07-15", values)
 
+  @ddt.data(
+      ("T-1", {"Some Other text name*": "abc"}, set()),
+      ("T-1", {"Some Other text name*": ""}, {
+          errors.MISSING_VALUE_ERROR.format(
+              line=3, column_name='Some Other text name'
+          )
+      }),
+      ("", {}, set()),
+  )
+  @ddt.unpack
+  def test_import_assmnt_with_missing_mandatory_lca(self, template,
+                                                    cad, expected_errors):
+    """Test importing of assessments with template and missing LCA."""
+
+    self.import_file("assessment_template_no_warnings.csv")
+
+    asmt_csv = OrderedDict([
+        ("object_type", "Assessment"),
+        ("Code*", "A 4"),
+        ("Audit", "Audit"),
+        ("Template", template),
+        ("Assignees", "user@example.com"),
+        ("Creators", "user@example.com"),
+        ("Title", "Template Assessment 1"),
+        ("State", "not started"),
+        ("date of birth*", "2019-06-06"),
+    ])
+    asmt_csv.update(cad)
+
+    response = self.import_data(asmt_csv, dry_run=True)
+    expected_messages = {
+        "Assessment": {
+            "row_errors": expected_errors,
+        }
+    }
+    self._check_csv_response(response, expected_messages)
+
   def test_import_assessment_with_evidence_file(self):
     """Test import evidence file should add warning"""
     response = self.import_file("assessment_with_evidence_file.csv",

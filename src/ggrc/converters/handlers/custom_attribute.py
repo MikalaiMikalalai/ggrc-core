@@ -246,8 +246,16 @@ class ObjectCaColumnHandler(CustomAttributeColumnHandler):
     super(ObjectCaColumnHandler, self).set_obj_attr()
 
   def get_ca_definition(self):
-    """Get custom attribute definition for a specific object."""
+    """Get local custom attribute definition for a specific object."""
+    # pylint: disable=protected-access
     if self.row_converter.obj.id is None:
-      return None
+      if self.row_converter.object_class == 'Assessment' and self.dry_run:
+        _template = self.row_converter._get_assessment_template()
+        if _template:
+          cads = [d for d in _template.custom_attribute_definitions
+                  if d.title == self.display_name]
+          return cads[0] if cads else None
+      else:
+        return None
     cache = self.row_converter.block_converter.ca_definitions_cache
     return cache.get((self.row_converter.obj.id, self.display_name))

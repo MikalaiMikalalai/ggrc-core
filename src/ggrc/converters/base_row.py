@@ -480,7 +480,7 @@ class ImportRowConverter(RowConverter):
       db.session.rollback()
       logger.exception("Import failed with: %s", err.message)
       self.block_converter.add_errors(errors.UNKNOWN_ERROR,
-                                      line=self.offset + 2)
+                                      line=self.block_converter.offset + 2)
     else:
       self.send_comment_notifications()
       self.send_post_commit_signals(event=import_event)
