@@ -16,6 +16,8 @@ from operator import itemgetter
 from dateutil import relativedelta
 
 import flask
+from flask import request
+
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import true
@@ -49,6 +51,9 @@ from ggrc_workflows.notification.data_handler import (
 
 # pylint: disable=invalid-name
 logger = getLogger(__name__)
+
+DEFAULT_PAGE_SIZE = 100
+DEFAULT_PAGE_NUMBER = 1
 
 
 class Services(object):
@@ -145,7 +150,7 @@ def get_filter_data(
   return result
 
 
-def get_notification_data(notifications, with_related=True):
+def get_notification_data(notifications, tasks_cache=None, with_related=True):
   """Get notification data for all notifications.
 
   This function returns a filtered data for all notifications for the users
@@ -154,6 +159,7 @@ def get_notification_data(notifications, with_related=True):
   Args:
     notifications (list of Notification): List of notification for which we
       want to get notification data.
+    tasks_cache (dict): Task instances related to given notification records.
     with_related (bool): get notifications data with related objects.
 
   Returns:
@@ -165,7 +171,9 @@ def get_notification_data(notifications, with_related=True):
   aggregate_data = {}
   people_cache = {}
 
-  tasks_cache = cycle_tasks_cache(notifications)
+  if tasks_cache is None:
+    tasks_cache = cycle_tasks_cache(notifications)
+
   if with_related:
     deleted_rels_cache = deleted_task_rels_cache(tasks_cache.keys())
   else:
@@ -207,7 +215,50 @@ def sort_comments(notif_data):
     comment_notifs[parent_obj_info] = comments_as_list
 
 
-def get_pending_notifications():
+def filter_cycle_tasks_caches(notifications, tasks_caches):
+  """Filter related tasks by notification id"""
+  task_ids = [n.object_id for n in notifications
+              if n.object_type == "CycleTaskGroupObjectTask"]
+
+  return {i: tasks_caches[i] for i in task_ids if i in tasks_caches}
+
+
+def split_notif_by_chunks(notifications, chunk_size=7000):
+  """Split notification by chunks.
+
+  Args:
+    notifications (list of Notification): List of notification.
+    chunk_size (int): chunk size.
+  """
+  result = []
+  count_chunks = len(notifications) // chunk_size + 1
+  start_index = 0
+  for i in range(start_index, count_chunks + 1):
+    stop_index = start_index + chunk_size
+    result.append(notifications[start_index:stop_index])
+    start_index = i * chunk_size
+  return result
+
+
+def build_pagination_params():
+  """Build pagination params from request obj
+
+  :return:
+    tuple(<page_number: int>, <page_size: int>)
+  """
+  page_number = int(
+      request.args.get('page_number', DEFAULT_PAGE_NUMBER)
+  )
+  page_size = int(
+      request.args.get('page_size', DEFAULT_PAGE_SIZE)
+  )
+  total_count = db.session.query(Notification).filter(
+      (Notification.sent_at.is_(None)) | (Notification.repeating == true())
+  ).count()
+  return page_number, page_size, total_count
+
+
+def get_pending_notifications(with_pagination=False):
   """Get notification data for all future notifications.
 
   The data dict that get's returned here contains notification data grouped by
@@ -215,11 +266,27 @@ def get_pending_notifications():
 
   Returns
     list of Notifications, data: a tuple of notifications that were handled
-      and corresponding data for those notifications.
+      and corresponding data for those notifications and
+      total count notifications.
   """
-  notifications = db.session.query(Notification).filter(
-      (Notification.sent_at.is_(None)) | (Notification.repeating == true())
-  ).all()
+  total_count = 0
+
+  if with_pagination:
+    page_number, page_size, total_count = build_pagination_params()
+    notifications = db.session.query(Notification).filter(
+        (Notification.sent_at.is_(None)) | (Notification.repeating == true())
+    ).order_by(Notification.send_on) \
+        .limit(page_size) \
+        .offset((page_number - 1) * page_size) \
+        .all()
+  else:
+    notifications = db.session.query(Notification).filter(
+        (Notification.sent_at.is_(None)) | (Notification.repeating == true())
+    ).all()
+
+  tasks_caches = {}
+  for notif in split_notif_by_chunks(notifications):
+    tasks_caches.update(cycle_tasks_cache(notif))
 
   notif_by_day = defaultdict(list)
   for notification in notifications:
@@ -229,10 +296,12 @@ def get_pending_notifications():
   today = date.today()
   for day, notif in notif_by_day.iteritems():
     current_day = max(day, today)
+    notif_tasks_caches = filter_cycle_tasks_caches(notif, tasks_caches)
     data[current_day] = merge_dict(data[current_day],
-                                   get_notification_data(notif))
+                                   get_notification_data(notif,
+                                                         notif_tasks_caches))
 
-  return notifications, data
+  return notifications, data, total_count
 
 
 def generate_daily_notifications():
@@ -453,12 +522,15 @@ def show_pending_notifications():
   """
   if not permissions.is_admin():
     raise Forbidden()
-  _, notif_data = get_pending_notifications()
+  _, notif_data, total_count = get_pending_notifications(with_pagination=True)
 
   for day_notif in notif_data.itervalues():
     for data in day_notif.itervalues():
       data = modify_data(data)
-  return settings.EMAIL_PENDING.render(data=sorted(notif_data.iteritems()))
+  return settings.EMAIL_PENDING.render(
+      total_count=total_count,
+      data=sorted(notif_data.iteritems())
+  )
 
 
 def show_daily_digest_notifications():
