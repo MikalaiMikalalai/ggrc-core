@@ -11,13 +11,14 @@ import re
 from collections import defaultdict
 from datetime import date
 from datetime import datetime
+import json
 from logging import getLogger
 from operator import itemgetter
 from dateutil import relativedelta
 
 import flask
+from flask import current_app
 from flask import request
-
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import true
@@ -150,7 +151,7 @@ def get_filter_data(
   return result
 
 
-def get_notification_data(notifications, tasks_cache=None, with_related=True):
+def get_notification_data(notifications, with_related=True):
   """Get notification data for all notifications.
 
   This function returns a filtered data for all notifications for the users
@@ -159,7 +160,6 @@ def get_notification_data(notifications, tasks_cache=None, with_related=True):
   Args:
     notifications (list of Notification): List of notification for which we
       want to get notification data.
-    tasks_cache (dict): Task instances related to given notification records.
     with_related (bool): get notifications data with related objects.
 
   Returns:
@@ -171,16 +171,12 @@ def get_notification_data(notifications, tasks_cache=None, with_related=True):
   aggregate_data = {}
   people_cache = {}
 
-  if tasks_cache is None:
-    tasks_cache = cycle_tasks_cache(notifications)
-
+  tasks_cache = cycle_tasks_cache(notifications)
   if with_related:
     deleted_rels_cache = deleted_task_rels_cache(tasks_cache.keys())
   else:
     deleted_rels_cache = {}
-
   ca_cache = custom_attributes_cache(notifications)
-
   for notification in notifications:
     filtered_data = get_filter_data(
         notification, people_cache, tasks_cache=tasks_cache,
@@ -215,47 +211,61 @@ def sort_comments(notif_data):
     comment_notifs[parent_obj_info] = comments_as_list
 
 
-def filter_cycle_tasks_caches(notifications, tasks_caches):
-  """Filter related tasks by notification id"""
-  task_ids = [n.object_id for n in notifications
-              if n.object_type == "CycleTaskGroupObjectTask"]
+def prepare_comments_for_json(notif_data):
+  """Inline replace notifications comment keys for JSON serialization.
 
-  return {i: tasks_caches[i] for i in task_ids if i in tasks_caches}
-
-
-def split_notif_by_chunks(notifications, chunk_size=7000):
-  """Split notification by chunks.
-
-  Args:
-    notifications (list of Notification): List of notification.
-    chunk_size (int): chunk size.
-  """
-  result = []
-  count_chunks = len(notifications) // chunk_size + 1
-  start_index = 0
-  for i in range(start_index, count_chunks + 1):
-    stop_index = start_index + chunk_size
-    result.append(notifications[start_index:stop_index])
-    start_index = i * chunk_size
-  return result
+    Args:
+      notif_data: Dictionary containing aggregated notification data for
+       a single day.
+    Returns:
+      None
+    """
+  if "comment_created" in notif_data:
+    comment_notifs = notif_data.get("comment_created", {})
+    modified_comments = {}
+    for parent_obj_info, comments in comment_notifs.iteritems():
+      modified_comments[str(parent_obj_info)] = comments
+    notif_data["comment_created"] = modified_comments
 
 
 def build_pagination_params():
   """Build pagination params from request obj
 
-  :return:
+  Returns:
     tuple(<page_number: int>, <page_size: int>)
   """
-  page_number = int(
-      request.args.get('page_number', DEFAULT_PAGE_NUMBER)
-  )
-  page_size = int(
-      request.args.get('page_size', DEFAULT_PAGE_SIZE)
-  )
+  if request.content_type == 'application/json':
+    request_json = request.json()
+    page_number = request_json.get('page_number', DEFAULT_PAGE_NUMBER)
+    page_size = request_json.get('page_size', DEFAULT_PAGE_SIZE)
+  else:
+    page_number = int(
+        request.args.get('page_number', DEFAULT_PAGE_NUMBER)
+    )
+    page_size = int(
+        request.args.get('page_size', DEFAULT_PAGE_SIZE)
+    )
+
   total_count = db.session.query(Notification).filter(
       (Notification.sent_at.is_(None)) | (Notification.repeating == true())
   ).count()
   return page_number, page_size, total_count
+
+
+def has_request_params():
+  """
+    Check if request has params.
+    Returns:
+      bool: True if request has all needed params.
+  """
+  if request.content_type == 'application/json':
+    request_json = request.json()
+    page_number = request_json.get('page_number')
+    page_size = request_json.get('page_size')
+  else:
+    page_number = request.args.get('page_number')
+    page_size = request.args.get('page_size')
+  return all((page_number, page_size))
 
 
 def get_pending_notifications(with_pagination=False):
@@ -264,7 +274,10 @@ def get_pending_notifications(with_pagination=False):
   The data dict that get's returned here contains notification data grouped by
   dates on which the notifications should be received.
 
-  Returns
+  Args:
+    with_pagination(bool): specifies if pagination is needed.
+
+  Returns:
     list of Notifications, data: a tuple of notifications that were handled
       and corresponding data for those notifications and
       total count notifications.
@@ -277,16 +290,11 @@ def get_pending_notifications(with_pagination=False):
         (Notification.sent_at.is_(None)) | (Notification.repeating == true())
     ).order_by(Notification.send_on) \
         .limit(page_size) \
-        .offset((page_number - 1) * page_size) \
-        .all()
+        .offset((page_number - 1) * page_size).all()
   else:
     notifications = db.session.query(Notification).filter(
         (Notification.sent_at.is_(None)) | (Notification.repeating == true())
     ).all()
-
-  tasks_caches = {}
-  for notif in split_notif_by_chunks(notifications):
-    tasks_caches.update(cycle_tasks_cache(notif))
 
   notif_by_day = defaultdict(list)
   for notification in notifications:
@@ -296,10 +304,8 @@ def get_pending_notifications(with_pagination=False):
   today = date.today()
   for day, notif in notif_by_day.iteritems():
     current_day = max(day, today)
-    notif_tasks_caches = filter_cycle_tasks_caches(notif, tasks_caches)
     data[current_day] = merge_dict(data[current_day],
-                                   get_notification_data(notif,
-                                                         notif_tasks_caches))
+                                   get_notification_data(notif))
 
   return notifications, data, total_count
 
@@ -508,6 +514,71 @@ def create_notification_history_obj(notif):
 
 
 def show_pending_notifications():
+  """Get notification for all future notifications.
+
+  The data shown here is grouped by dates on which notifications should be
+  sent.
+
+  Note that the dates for all future notifications will be wrong since they are
+  based on the current date which will be different when the notification is
+  actually sent.
+
+  Returns:
+    HttpResponse: Html if no params in request JSON with notification data
+     otherwise.
+  """
+  if has_request_params():
+    return show_pending_notifications_json()
+
+  return show_pending_notifications_html()
+
+
+def show_pending_notifications_json():
+  """Get notification JSON for future notifications.
+
+    The data shown here is grouped by dates on which notifications should be
+    sent.
+
+    Returns:
+      HttpResponse: JSON HTTP response containing notifications data.
+    """
+  if not permissions.is_admin():
+    return make_json_response('Forbidden', 403, {}, 0)
+  _, notif_data, total_count = get_pending_notifications(with_pagination=True)
+  for day_notif in notif_data.itervalues():
+    for _data in day_notif.itervalues():
+      _data = modify_notification_data(_data)
+  data = {str(_date): notif for (_date, notif) in notif_data.iteritems()}
+  return make_json_response('Success', 200, data, total_count)
+
+
+def modify_notification_data(data):
+  """Modify notification data dictionar.
+  Args:
+    data (dict): notification data.
+
+  Returns:
+    dict: the received dict with additional fields for easier FE traversal.
+  """
+  data["cycle_started_tasks"] = {}
+
+  if "cycle_data" in data:
+    for cycle in data.get("cycle_data", {}).values():
+      if "my_tasks" in cycle:
+        data["cycle_started_tasks"].update(cycle["my_tasks"])
+
+  data["unsubscribe_url"] = unsubscribe_url(data["user"]["id"])
+
+  sort_comments(data)
+  prepare_comments_for_json(data)
+
+  for task in data.get("task_overdue", {}).values():
+    task["workflow_title"] = task["workflow"].title
+    task["task_group_title"] = task["task_group"].title
+  return data
+
+
+def show_pending_notifications_html():
   """Get notification html for all future notifications.
 
   The data shown here is grouped by dates on which notifications should be
@@ -522,15 +593,27 @@ def show_pending_notifications():
   """
   if not permissions.is_admin():
     raise Forbidden()
-  _, notif_data, total_count = get_pending_notifications(with_pagination=True)
+  return flask.render_template(
+      "notifications/notifications.haml")
 
-  for day_notif in notif_data.itervalues():
-    for data in day_notif.itervalues():
-      data = modify_data(data)
-  return settings.EMAIL_PENDING.render(
-      total_count=total_count,
-      data=sorted(notif_data.iteritems())
-  )
+
+def make_json_response(message, status_code, data, total_count):
+  """Create JSON response with notification data.
+
+  Args:
+    message (str): Status message.
+    status_code (int): HTTP response status code.
+    data (dict): Notification dict.
+    total_count (int): Total notifications count.
+  Returns:
+    HttpResponse: JSON HTTP response containing notifications data.
+  """
+  return current_app.make_response((
+      json.dumps(
+          {'message': message, 'data': data, 'total_count': total_count},
+          cls=utils.GrcEncoder),
+      status_code,
+      [('Content-Type', 'application/json')]))
 
 
 def show_daily_digest_notifications():

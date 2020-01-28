@@ -217,7 +217,8 @@ class TestCommentNotification(TestNotifications):
     self.generator.generate_comment(
         assessment, "", "some comment2", send_notification="true"
     )
-    response = self.client.get("/_notifications/show_pending")
+    response = self.client.get(
+        "/_notifications/show_pending?page_number=1&page_size=50")
     for comment in ["some comment1", "some comment2"]:
       self.assertIn(
           comment, response.data,

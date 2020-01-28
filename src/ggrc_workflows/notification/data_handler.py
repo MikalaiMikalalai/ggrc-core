@@ -587,6 +587,8 @@ def get_cycle_task_related_objects(cycle_task):
 
   for rel_type, rel_ids in type_relations.iteritems():
     related_model = models.get_model(rel_type)
+    if not related_model:
+      continue
     attr_name = "title" if issubclass(
         related_model, models.mixins.Titled) else "name"
     try:

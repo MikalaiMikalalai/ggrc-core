@@ -1,0 +1,25 @@
+-#
+-# Copyright (C) 2020 Google Inc.
+-# Licensed under http://www.apache.org/licenses/LICENSE-2.0 <see LICENSE file>
+-#
+!!! 5
+%html{ lang:"en", "class": "no-js" }
+  %head
+    %meta{ content:"text/html; charset=utf-8", 'http-equiv':"Content-Type" }
+    %meta{ charset:"utf-8" }
+    %meta{ content: "width=device-width, initial-scale=1.0", name: "viewport" }
+    -#FIXME: (?) META tags for author, description
+
+    %title
+      -block title
+        Google GRC Email
+
+    %link{ rel:'stylesheet', type:'text/css', href:'{{config.get("STYLES_CSS_PATH")}}' }
+    %link{ rel:'stylesheet', type:'text/css', href:'{{config.get("VENDOR_CSS_PATH")}}' }
+    %link{ 'href': '={ url_for("static", filename="favicon.ico") }', 'rel':'icon', 'type':'image/x-icon' }
+
+-block body
+
+-block page_scripts
+    %script{ type:'text/javascript', src:'{{config.get("VENDOR_JS_PATH")}}' }
+    %script{ type:'text/javascript', src:'{{config.get("NOTIFICATIONS_JS_PATH")}}' }
