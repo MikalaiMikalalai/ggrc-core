@@ -55,7 +55,7 @@ class TestWfAdminPropagation(base.TestACLPropagation):
           "CycleTaskGroup": {
               "read": True,
               "update": False,
-              "delete": True,
+              "delete": False,
           },
           "CycleTask": {
               "create": True,
@@ -113,7 +113,7 @@ class TestWfAdminPropagation(base.TestACLPropagation):
           "CycleTaskGroup": {
               "read": True,
               "update": False,
-              "delete": True,
+              "delete": False,
           },
           "CycleTask": {
               "create": True,
@@ -171,7 +171,7 @@ class TestWfAdminPropagation(base.TestACLPropagation):
           "CycleTaskGroup": {
               "read": True,
               "update": False,
-              "delete": True,
+              "delete": False,
           },
           "CycleTask": {
               "create": True,

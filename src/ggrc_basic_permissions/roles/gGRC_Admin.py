@@ -15,7 +15,7 @@ permissions = {
             "condition": "forbid",
             "terms": {
                 "blacklist": {
-                    "delete": ["Cycle", "Person"]
+                    "delete": ["Cycle", "CycleTaskGroup", "Person"]
                 }
             },
         },

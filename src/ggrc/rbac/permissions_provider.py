@@ -289,10 +289,15 @@ class DefaultUserPermissions(object):
     permissions = self._permissions()
     # Check for admin permission
     if self._permission_match(self.ADMIN_PERMISSION, permissions):
-      conditions = permissions[self.ADMIN_PERMISSION.action]\
+      no_context_conditions = permissions[self.ADMIN_PERMISSION.action]\
           .get(self.ADMIN_PERMISSION.resource_type)\
           .get("conditions", {})\
           .get(None, [])
+      context_conditions = permissions[self.ADMIN_PERMISSION.action]\
+          .get(self.ADMIN_PERMISSION.resource_type)\
+          .get("conditions", {})\
+          .get(0, [])
+      conditions = no_context_conditions + context_conditions
       if not conditions:
         return True
       return self._check_conditions(instance, action, conditions)

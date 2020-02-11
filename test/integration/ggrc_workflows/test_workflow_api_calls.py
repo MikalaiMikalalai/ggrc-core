@@ -854,15 +854,15 @@ class TestWorkflowsApiPost(TestCase):
     self.assert403(response)
 
   @ddt.data(
-      ('Editor', 200, 0),
-      ('Creator', 403, 1),
-      ('Reader', 403, 1),
-      ('Administrator', 200, 0),
+      'Editor',
+      'Creator',
+      'Reader',
+      'Administrator',
   )
-  @ddt.unpack
-  def test_delete_ctg_wf_member(self, member_role, response_code, exp_count):
-    """Check deletion cycle task group by workflow member"""
+  def test_delete_ctg_wf_member(self, member_role):
+    """Check deletion cycle task group by Workflow Member"""
     member = self.create_user_with_role(member_role)
+    exp_count = 1
     with factories.single_commit():
       workflow = wf_factories.WorkflowFactory()
       workflow.add_person_with_role_name(member, 'Workflow Member')
@@ -887,8 +887,8 @@ class TestWorkflowsApiPost(TestCase):
     self.api.set_user(member)
 
     response = self.api.delete(ctg)
+    self.assert403(response)
 
-    self.assertEquals(response.status_code, response_code)
     count = len(all_models.CycleTaskGroup.query.all())
     self.assertEquals(count, exp_count)
 
@@ -899,9 +899,9 @@ class TestWorkflowsApiPost(TestCase):
       'Creator',
   )
   def test_delete_ctg_wf_admin(self, admin_role):
-    """Check deletion cycle task group by workflow member"""
+    """Check deletion cycle task group by Workflow Admin"""
     admin = self.create_user_with_role(admin_role)
-    exp_count = 0
+    exp_count = 1
     with factories.single_commit():
       workflow = wf_factories.WorkflowFactory()
       workflow.add_person_with_role_name(admin, 'Admin')
@@ -927,6 +927,6 @@ class TestWorkflowsApiPost(TestCase):
 
     response = self.api.delete(ctg)
 
-    self.assert200(response)
+    self.assert403(response)
     count = len(all_models.CycleTaskGroup.query.all())
     self.assertEquals(count, exp_count)

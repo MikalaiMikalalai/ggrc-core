@@ -186,11 +186,5 @@ permissions = {
         "Review"
     ],
     "update": owner_update,
-    "delete": owner_delete + [
-        {
-            "type": "CycleTaskGroup",
-            "condition": "is_workflow_admin",
-            "terms": {},
-        },
-    ],
+    "delete": owner_delete
 }

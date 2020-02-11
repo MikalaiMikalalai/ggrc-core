@@ -195,7 +195,6 @@ permissions = {
         },
         "Workflow",
         "TaskGroup",
-        "CycleTaskGroup",
         "TaskGroupTask",
         "Control",
         "CustomAttributeDefinition",
