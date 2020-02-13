@@ -223,8 +223,9 @@ def prepare_comments_for_json(notif_data):
   if "comment_created" in notif_data:
     comment_notifs = notif_data.get("comment_created", {})
     modified_comments = {}
-    for parent_obj_info, comments in comment_notifs.iteritems():
-      modified_comments[str(parent_obj_info)] = comments
+    for par_obj_inf, comments in comment_notifs.iteritems():
+      modified_comments["{}-{}".format(
+          par_obj_inf.object_type, par_obj_inf.id)] = comments
     notif_data["comment_created"] = modified_comments
 
 
@@ -560,21 +561,21 @@ def modify_notification_data(data):
   Returns:
     dict: the received dict with additional fields for easier FE traversal.
   """
-  data["cycle_started_tasks"] = {}
+  if "task_overdue" in data:
+    for task in data.get("task_overdue", {}).values():
+      task["workflow_title"] = task["workflow"].title
+      task["task_group_title"] = task["task_group"].title
 
-  if "cycle_data" in data:
-    for cycle in data.get("cycle_data", {}).values():
-      if "my_tasks" in cycle:
-        data["cycle_started_tasks"].update(cycle["my_tasks"])
+  if "due_today" in data:
+    for task in data.get("due_today", {}).values():
+      task["workflow_title"] = task["workflow"].title
+      task["task_group_title"] = task["task_group"].title
 
   data["unsubscribe_url"] = unsubscribe_url(data["user"]["id"])
+  data["DATE_FORMAT"] = DATE_FORMAT_US
 
   sort_comments(data)
   prepare_comments_for_json(data)
-
-  for task in data.get("task_overdue", {}).values():
-    task["workflow_title"] = task["workflow"].title
-    task["task_group_title"] = task["task_group"].title
   return data
 
 
