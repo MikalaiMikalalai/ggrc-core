@@ -56,6 +56,15 @@ logger = getLogger(__name__)
 DEFAULT_PAGE_SIZE = 100
 DEFAULT_PAGE_NUMBER = 1
 
+TASK_FIELDS_FOR_MODIFICATION = (
+    'task_overdue', 'task_declined', 'due_in', 'due_today', 'cycle_started',
+    'cycle_starts_in', 'all_tasks_completed', 'cycle_start_failed')
+
+ASSESSMENT_FIELDS_FOR_MODIFICATION = (
+    'assessment_assignees_reminder', 'assessment_open', 'assessment_verified',
+    'assessment_completed', 'assessment_ready_for_review',
+    'assessment_declined', 'assessment_reopened')
+
 
 class Services(object):
   """Helper class for notification services.
@@ -222,10 +231,22 @@ def prepare_comments_for_json(notif_data):
     """
   if "comment_created" in notif_data:
     comment_notifs = notif_data.get("comment_created", {})
-    modified_comments = {}
-    for par_obj_inf, comments in comment_notifs.iteritems():
-      modified_comments["{}-{}".format(
-          par_obj_inf.object_type, par_obj_inf.id)] = comments
+    modified_comments_list = []
+    for _, comments in comment_notifs.iteritems():
+      modified_comments = {
+          "comments": []
+      }
+      for comment in comments:
+        modified_comments["parent_title"] = comment["parent_title"]
+        modified_comments["parent_type"] = comment["parent_type"]
+        modified_comments["comments"].append(
+            {
+                "commentator_name": comment["commentator"]["name"],
+                "description": comment["description"],
+                "created_at_str": comment["created_at_str"],
+            }
+        )
+      modified_comments_list.append(modified_comments)
     notif_data["comment_created"] = modified_comments
 
 
@@ -549,7 +570,8 @@ def show_pending_notifications_json():
   for day_notif in notif_data.itervalues():
     for _data in day_notif.itervalues():
       _data = modify_notification_data(_data)
-  data = {str(_date): notif for (_date, notif) in notif_data.iteritems()}
+  data = [{"date": str(_date), "emails": [notif.values()]}
+          for (_date, notif) in notif_data.iteritems()]
   return make_json_response('Success', 200, data, total_count)
 
 
@@ -572,11 +594,118 @@ def modify_notification_data(data):
       task["task_group_title"] = task["task_group"].title
 
   data["unsubscribe_url"] = unsubscribe_url(data["user"]["id"])
-  data["DATE_FORMAT"] = DATE_FORMAT_US
+  data["date_format"] = DATE_FORMAT_US
+  data["user_name"] = data["user"]["name"]
+  data["user_email"] = data["user"]["email"]
+  del data["user"]
 
   sort_comments(data)
   prepare_comments_for_json(data)
+  modify_task_fields_for_json(data)
+  modify_cycle_data_fields_for_json(data)
+  modify_assessment_data_fields_for_json(data)
+  modify_assessment_updated_fields_for_json(data)
   return data
+
+
+def modify_task_fields_for_json(data):
+  """Modify tasks data for JSON response.
+
+  Args:
+    data: response data.
+  """
+  for field in TASK_FIELDS_FOR_MODIFICATION:
+    if field in data:
+      field_vals = data[field].values()
+      updated_field_vals = []
+      for val in field_vals:
+        updated_field_vals.append(
+            {
+                "workflow_title": val.get("workflow_title"),
+                "workflow_url": val.get("workflow_title"),
+                "title": val.get("title"),
+                "task_group_title": val.get("task_group_title"),
+                "cycle_task_url": val.get("cycle_task_url"),
+                "related_objects": val.get("related_objects"),
+                "due_date_statement": val.get("due_date_statement"),
+                "start_date_statement": val.get("start_date_statement"),
+                "custom_message": val.get("custom_message"),
+                "cycle_inactive_url": val.get("cycle_inactive_url"),
+                "cycle_title": val.get("cycle_title"),
+                "cycle_slug": val.get("cycle_slug"),
+            }
+        )
+      data[field] = updated_field_vals
+
+
+def modify_cycle_data_fields_for_json(data):
+  """Modify cycle data for JSON response.
+
+  Args:
+    data: response data.
+  """
+  if "cycle_data" in data:
+    cycle_data = []
+    tasks_list = data["cycle_data"].values()
+    for tasks in tasks_list:
+      my_tasks = tasks["my_tasks"].values()
+      for task in my_tasks:
+        cycle_data.append({
+            "cycle_task_url": task.get("cycle_task_url"),
+            "title": task.get("title"),
+            "end_date": task.get("end_date"),
+            "related_objects": task.get("related_objects", []),
+        })
+    data["cycle_data"] = cycle_data
+
+
+def modify_assessment_data_fields_for_json(data):
+  """Modify assessment data for JSON response.
+
+  Args:
+    data: response data.
+  """
+  for field in ASSESSMENT_FIELDS_FOR_MODIFICATION:
+    if field in data:
+      field_vals = data[field].values()
+      updated_field_vals = []
+      for val in field_vals:
+        updated_field_vals.append(
+            {
+                "notif_created_at": val.get("notif_created_at")[0],
+                "end-date": val.get("end-date"),
+                "url": val.get("url"),
+                "title": val.get("title"),
+            }
+        )
+      data[field] = updated_field_vals
+
+
+def modify_assessment_updated_fields_for_json(data):
+  """Modify assessment updated data for JSON response.
+
+  Args:
+    data: response data.
+  """
+  if "assessment_updated" in data:
+    assessment_updated = []
+    assessment_updated_list = data["assessment_updated"].values()
+    for _assmnt in assessment_updated_list:
+      assmnt = {
+          "url": _assmnt.get("url"),
+          "title": _assmnt.get("title"),
+          "updated_data": [],
+      }
+      for field_name in _assmnt["updated_data"]:
+        assmnt["updated_data"].append(
+            {
+                "field_name": field_name,
+                "new_value": _assmnt["updated_data"][field_name][0],
+                "old_value": _assmnt["updated_data"][field_name][1],
+            }
+        )
+      assessment_updated.append(assmnt)
+    data["assessment_updated"] = assessment_updated
 
 
 def show_pending_notifications_html():
