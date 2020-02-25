@@ -51,10 +51,10 @@ class Attributable(object):
   def eager_query(cls, **kwargs):
     """Define fields to be loaded eagerly to lower the count of DB queries."""
     query = super(Attributable, cls).eager_query(**kwargs)
-    query = query.options(
-        orm.subqueryload('_attributes')
-    )
-    return query
+    options = {
+        'attributes': orm.subqueryload('_attributes')
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

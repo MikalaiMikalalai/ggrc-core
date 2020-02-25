@@ -686,22 +686,22 @@ class CustomAttributable(CustomAttributableBase):
   def eager_query(cls, **kwargs):
     """Define fields to be loaded eagerly to lower the count of DB queries."""
     query = super(CustomAttributable, cls).eager_query(**kwargs)
-    query = query.options(
-        orm.subqueryload('custom_attribute_definitions')
-           .undefer_group('CustomAttributeDefinition_complete'),
-        orm.subqueryload('_custom_attribute_values')
-           .undefer_group('CustomAttributeValue_complete')
-           .subqueryload('{0}_custom_attributable'.format(cls.__name__)),
-        orm.subqueryload('_custom_attribute_values')
-           .subqueryload('_related_revisions'),
-    )
+    options = {
+        'custom_attribute_definitions':
+            orm.subqueryload('custom_attribute_definitions')
+               .undefer_group('CustomAttributeDefinition_complete'),
+        'custom_attribute_values':
+            (orm.subqueryload('_custom_attribute_values')
+               .undefer_group('CustomAttributeValue_complete')
+               .subqueryload('{0}_custom_attributable'.format(cls.__name__)),
+             orm.subqueryload('_custom_attribute_values')
+               .subqueryload('_related_revisions'))
+    }
     if hasattr(cls, 'comments'):
-      # only for Commentable classess
-      query = query.options(
-          orm.subqueryload('comments')
-             .undefer_group('Comment_complete'),
-      )
-    return query
+      options.update(
+          {'comments': orm.subqueryload('comments')
+                          .undefer_group('Comment_complete')})
+    return cls.populate_query(query, options, **kwargs)
 
   def log_json(self):
     """Log custom attribute values."""

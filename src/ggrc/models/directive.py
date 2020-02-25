@@ -137,11 +137,16 @@ class Directive(mixins.LastDeprecatedTimeboxed,
 
   @classmethod
   def eager_query(cls, **kwargs):
-    query = super(Directive, cls).eager_query(**kwargs)
-    return cls.eager_inclusions(query, Directive._include_links).options(
-        orm.joinedload('audit_frequency'),
-        orm.joinedload('audit_duration'),
-        orm.subqueryload('controls'))
+    """Eager Query."""
+    query = cls.eager_inclusions(
+        super(Directive, cls).eager_query(**kwargs),
+        Directive._include_links)
+    options = {
+        'audit_frequency': orm.joinedload('audit_frequency'),
+        'audit_duration': orm.joinedload('audit_duration'),
+        'controls': orm.subqueryload('controls'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @staticmethod
   def _extra_table_args(cls):

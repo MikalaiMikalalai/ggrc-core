@@ -233,18 +233,19 @@ class Assessment(Assignable,
   }
 
   @classmethod
-  def _populate_query(cls, query):
-    return query.options(
-        orm.Load(cls).undefer_group("Assessment_complete"),
-        orm.Load(cls).joinedload("audit").undefer_group("Audit_complete"),
-        orm.Load(cls).joinedload("audit").joinedload(
-            audit.Audit.issuetracker_issue
-        )
-    )
-
-  @classmethod
   def eager_query(cls, **kwargs):
-    return cls._populate_query(super(Assessment, cls).eager_query(**kwargs))
+    """Eager Query."""
+    query = super(Assessment, cls).eager_query(**kwargs).options(
+        orm.Load(cls).undefer_group("Assessment_complete"),
+    )
+    options = {
+        "audit": (
+            orm.Load(cls).joinedload("audit")
+                         .undefer_group("Audit_complete"),
+            orm.Load(cls).joinedload("audit")
+                         .joinedload(audit.Audit.issuetracker_issue))
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

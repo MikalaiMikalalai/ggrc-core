@@ -74,10 +74,12 @@ class TaskGroupObject(roleable.Roleable,
 
   @classmethod
   def eager_query(cls, **kwargs):
-
+    """Eager Query."""
     query = super(TaskGroupObject, cls).eager_query(**kwargs)
-    return query.options(
-        orm.subqueryload('task_group'))
+    options = {
+        'task_group': orm.subqueryload('task_group'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def _display_name(self):
     return self.object.display_name + '<->' + self.task_group.display_name
@@ -121,6 +123,10 @@ class TaskGroupable(object):
 
   @classmethod
   def eager_query(cls, **kwargs):
-    query = super(TaskGroupable, cls).eager_query(**kwargs)
-    return cls.eager_inclusions(query, TaskGroupable._include_links).options(
-        orm.subqueryload('task_group_objects'))
+    query = cls.eager_inclusions(
+        super(TaskGroupable, cls).eager_query(**kwargs),
+        TaskGroupable._include_links)
+    options = {
+        'task_group_objects': orm.subqueryload('task_group_objects')
+    }
+    return cls.populate_query(query, options, kwargs)

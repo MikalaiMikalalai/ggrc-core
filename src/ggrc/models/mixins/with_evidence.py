@@ -88,16 +88,15 @@ class WithEvidence(object):
   @classmethod
   def eager_query(cls, **kwargs):
     """Eager query classmethod."""
-    return cls.eager_inclusions(
+    query = cls.eager_inclusions(
         super(WithEvidence, cls).eager_query(**kwargs),
         WithEvidence._include_links,
-    ).options(
-        sa.orm.subqueryload(
-            'evidences',
-        ).undefer_group(
-            'Evidence_complete',
-        ),
     )
+    options = {
+        'evidences': sa.orm.subqueryload('evidences')
+                           .undefer_group('Evidence_complete'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @staticmethod
   def _log_evidences(evidences):

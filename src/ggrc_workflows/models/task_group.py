@@ -152,9 +152,10 @@ class TaskGroup(roleable.Roleable,
   @classmethod
   def eager_query(cls, **kwargs):
     query = super(TaskGroup, cls).eager_query(**kwargs)
-    return query.options(
-        orm.Load(cls).subqueryload('task_group_tasks')
-    )
+    options = {
+        'task_group_tasks': orm.Load(cls).subqueryload('task_group_tasks'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def _filter_by_workflow(cls, predicate):

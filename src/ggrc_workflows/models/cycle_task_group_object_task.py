@@ -357,18 +357,20 @@ class CycleTaskGroupObjectTask(roleable.Roleable,
     kwargs['load_related'] = True
 
     query = super(CycleTaskGroupObjectTask, cls).eager_query(**kwargs)
-    return query.options(
-        orm.joinedload('cycle')
-           .undefer_group('Cycle_complete'),
-        orm.joinedload('cycle')
-           .joinedload('workflow')
-           .undefer_group('Workflow_complete'),
-        orm.joinedload('cycle')
-           .joinedload('workflow')
-           .joinedload('_access_control_list'),
-        orm.joinedload('cycle_task_group')
-           .undefer_group('CycleTaskGroup_complete'),
-    )
+    options = {
+        'cycle': (
+            orm.joinedload('cycle').undefer_group('Cycle_complete'),
+            orm.joinedload('cycle')
+            .joinedload('workflow')
+            .undefer_group('Workflow_complete'),
+            orm.joinedload('cycle')
+            .joinedload('workflow')
+            .joinedload('_access_control_list'),
+        ),
+        'cycle_task_group': orm.joinedload('cycle_task_group')
+                               .undefer_group('CycleTaskGroup_complete'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

@@ -160,4 +160,8 @@ class CycleTaskable(WithWorkflowState):
   def eager_query(cls, **kwargs):
     """Eager query for objects with cycle tasks."""
     query = super(CycleTaskable, cls).eager_query(**kwargs)
-    return query.options(orm.subqueryload('cycle_task_group_object_tasks'))
+    options = {
+        'cycle_task_group_object_tasks':
+            orm.subqueryload('cycle_task_group_object_tasks'),
+    }
+    return cls.populate_query(query, options, **kwargs)

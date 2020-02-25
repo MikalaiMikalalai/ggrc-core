@@ -43,7 +43,10 @@ class Event(Base, db.Model):
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(Event, cls).eager_query(**kwargs)
-    return query.options(
-        orm.subqueryload('revisions').undefer_group('Revision_complete'),
-    )
+    options = {
+        'revisions': orm.subqueryload('revisions')
+                        .undefer_group('Revision_complete'),
+    }
+    return cls.populate_query(query, options, **kwargs)

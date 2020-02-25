@@ -120,9 +120,12 @@ class Commentable(object):
 
   @classmethod
   def eager_query(cls, **kwargs):
-    """Eager Query"""
+    """Eager Query."""
     query = super(Commentable, cls).eager_query(**kwargs)
-    return query.options(orm.subqueryload('comments'))
+    options = {
+        'comments': orm.subqueryload('comments'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @declared_attr
   def comments(cls):  # pylint: disable=no-self-argument
@@ -270,12 +273,15 @@ class Comment(Roleable, Relatable, Described, Notifiable,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(Comment, cls).eager_query(**kwargs)
-    return query.options(
-        orm.joinedload('revision'),
-        orm.joinedload('custom_attribute_definition')
-           .undefer_group('CustomAttributeDefinition_complete'),
-    )
+    options = {
+        'revision': orm.joinedload('revision'),
+        'custom_attribute_definition':
+            orm.joinedload('custom_attribute_definition')
+               .undefer_group('CustomAttributeDefinition_complete'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def log_json(self):
     """Log custom attribute revisions."""
@@ -399,7 +405,10 @@ class ExternalCommentable(object):
   def eager_query(cls, **kwargs):
     """Eager query for ExternalCommentable mixin."""
     query = super(ExternalCommentable, cls).eager_query(**kwargs)
-    return query.options(orm.subqueryload("comments"))
+    options = {
+        "comments": orm.subqueryload("comments"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @declared_attr
   def comments(cls):  # pylint: disable=no-self-argument

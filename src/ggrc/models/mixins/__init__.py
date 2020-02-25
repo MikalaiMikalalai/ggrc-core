@@ -793,13 +793,11 @@ class WithNetworkZone(object):
   def eager_query(cls, **kwargs):
     """Eager query."""
     query = super(WithNetworkZone, cls).eager_query(**kwargs)
-    return query.options(
-        orm.joinedload(
-            "network_zone"
-        ).undefer_group(
-            "Option_complete",
-        )
-    )
+    options = {
+        "network_zone": orm.joinedload("network_zone")
+                           .undefer_group("Option_complete")
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

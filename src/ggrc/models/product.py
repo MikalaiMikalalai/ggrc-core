@@ -81,8 +81,12 @@ class Product(Roleable,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(Product, cls).eager_query(**kwargs)
-    return query.options(orm.joinedload('kind'))
+    options = {
+        'kind': orm.joinedload('kind'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

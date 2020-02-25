@@ -137,8 +137,11 @@ class Labeled(object):
   @classmethod
   def eager_query(cls, **kwargs):
     """Eager query classmethod."""
-    return super(Labeled, cls).eager_query(**kwargs).options(
-        orm.subqueryload('_object_labels'))
+    query = super(Labeled, cls).eager_query(**kwargs)
+    options = {
+        'labels': orm.subqueryload('_object_labels'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

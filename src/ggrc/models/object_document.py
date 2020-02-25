@@ -73,16 +73,14 @@ class Documentable(object):
   @classmethod
   def eager_query(cls, **kwargs):
     """Eager query classmethod."""
-    return cls.eager_inclusions(
+    query = cls.eager_inclusions(
         super(Documentable, cls).eager_query(**kwargs),
-        Documentable._include_links,
-    ).options(
-        sa.orm.subqueryload(
-            'documents',
-        ).undefer_group(
-            'Document_complete',
-        ),
-    )
+        Documentable._include_links)
+    options = {
+        'documents': sa.orm.subqueryload('documents')
+                           .undefer_group('Document_complete'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @staticmethod
   def _log_docs(documents):

@@ -110,9 +110,12 @@ class Reviewable(rest_handable.WithPutHandable,
 
   @classmethod
   def eager_query(cls, **kwargs):
-    return super(Reviewable, cls).eager_query(**kwargs).options(
-        sa.orm.joinedload("review")
-    )
+    """Eager Query."""
+    query = super(Reviewable, cls).eager_query(**kwargs)
+    options = {
+        "review": sa.orm.joinedload("review"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

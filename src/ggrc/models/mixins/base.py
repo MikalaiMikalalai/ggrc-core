@@ -111,6 +111,25 @@ class Identifiable(object):
       table_args.append(table_dict)
     return tuple(table_args,)
 
+  @classmethod
+  def attribute_in_fields(cls, attr, **kwargs):
+    """Check if attribute is in fields query request."""
+    return \
+        not kwargs \
+        or not kwargs.get('fields') \
+        or attr in kwargs['fields']
+
+  @classmethod
+  def populate_query(cls, query, options, **kwargs):
+    """Populate eager query options."""
+    for attr, option in options.items():
+      if cls.attribute_in_fields(attr, **kwargs):
+        if isinstance(option, (list, tuple)):
+          query = query.options(*option)
+        else:
+          query = query.options(option)
+    return query
+
 
 class ContextRBAC(object):
   """Defines `context` relationship for Context-based access control."""

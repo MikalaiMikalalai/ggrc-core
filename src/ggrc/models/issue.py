@@ -139,12 +139,6 @@ class Issue(Roleable,
     return out_json
 
   @classmethod
-  def _populate_query(cls, query):
-    return query.options(
-        orm.Load(cls).joinedload("audit").undefer_group("Audit_complete"),
-    )
-
-  @classmethod
   def indexed_query(cls):
     return super(Issue, cls).indexed_query().options(
         orm.Load(cls).load_only("due_date"),
@@ -152,12 +146,17 @@ class Issue(Roleable,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     # Ensure that related_destinations and related_sources will be loaded
     # in subquery. It allows reduce a number of requests to DB when these attrs
     # are used
     kwargs['load_related'] = True
-
-    return cls._populate_query(super(Issue, cls).eager_query(**kwargs))
+    query = super(Issue, cls).eager_query(**kwargs)
+    options = {
+        "audit": orm.Load(cls).joinedload("audit")
+                              .undefer_group("Audit_complete"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @orm.validates("due_date")
   def validate_due_date(self, _, value):  # pylint: disable=no-self-use

@@ -145,26 +145,19 @@ class Roleable(object):
 
   @classmethod
   def eager_query(cls, **kwargs):
-    """Eager Query"""
+    """Eager Query."""
     query = super(Roleable, cls).eager_query(**kwargs)
-    return query.options(
-        orm.subqueryload(
-            '_access_control_list'
-        ).joinedload(
-            "ac_role"
-        ).undefer_group(
-            'AccessControlRole_complete'
-        ),
-        orm.subqueryload(
-            '_access_control_list'
-        ).joinedload(
-            "access_control_people"
-        ).joinedload(
-            "person"
-        ).undefer_group(
-            'Person_complete'
-        ),
-    )
+    options = {
+        "access_control_list": (
+            orm.subqueryload('_access_control_list')
+               .joinedload("ac_role")
+               .undefer_group('AccessControlRole_complete'),
+            orm.subqueryload('_access_control_list')
+               .joinedload("access_control_people")
+               .joinedload("person")
+               .undefer_group('Person_complete'))
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

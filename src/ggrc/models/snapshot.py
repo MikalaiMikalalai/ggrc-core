@@ -153,13 +153,20 @@ class Snapshot(rest_handable.WithDeleteHandable,
 
   @classmethod
   def eager_query(cls, **kwargs):
-    query = super(Snapshot, cls).eager_query(**kwargs)
-    return cls.eager_inclusions(query, Snapshot._include_links).options(
-        # Revision is loaded here with event's action for performance purpose.
-        orm.subqueryload('revision').joinedload('event').load_only('action'),
-        orm.subqueryload('revisions'),
-        orm.joinedload('audit').load_only("id", "archived"),
-    )
+    """Eager Query."""
+    query = cls.eager_inclusions(super(Snapshot, cls).eager_query(**kwargs),
+                                 Snapshot._include_links)
+    options = {
+        # Revision is loaded here with event's action
+        # for performance purpose
+        'revision': orm.subqueryload('revision')
+                       .joinedload('event')
+                       .load_only('action'),
+        'revisions': orm.subqueryload('revisions'),
+        'audit': orm.joinedload('audit')
+                    .load_only("id", "archived"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @hybrid_property
   def update_revision(self):

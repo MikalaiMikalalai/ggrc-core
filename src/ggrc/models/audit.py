@@ -248,11 +248,14 @@ class Audit(Snapshotable,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(Audit, cls).eager_query(**kwargs)
-    return query.options(
-        orm.joinedload('program'),
-        orm.subqueryload('object_people').joinedload('person'),
-    )
+    options = {
+        'program': orm.joinedload('program'),
+        'object_people': orm.subqueryload('object_people')
+                            .joinedload('person'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def get_evidences_from_assessments(self, objects=False):
     """Return all related evidences from assessments.

@@ -90,14 +90,15 @@ class Revision(before_flush_handleable.BeforeFlushHandleable,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     from sqlalchemy import orm
 
     query = super(Revision, cls).eager_query(**kwargs)
-    return query.options(
-        orm.subqueryload('modified_by'),
-        # Event's action is loaded here since it is used in description.
-        orm.joinedload('event').load_only('action'),
-    )
+    options = {
+        'modified_by': orm.subqueryload('modified_by'),
+        'action': orm.joinedload('event').load_only('action'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def __init__(self, obj, modified_by_id, action, content):
     self.resource_id = obj.id

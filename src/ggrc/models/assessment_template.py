@@ -298,13 +298,17 @@ class AssessmentTemplate(assessment.AuditRelationship,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(AssessmentTemplate, cls).eager_query(**kwargs)
-    return query.options(
-        orm.Load(cls).joinedload("audit").undefer_group("Audit_complete"),
-        orm.Load(cls).joinedload("audit").joinedload(
-            audit.Audit.issuetracker_issue
-        ),
-    )
+    options = {
+        "audit": (
+            orm.Load(cls).joinedload("audit")
+                         .undefer_group("Audit_complete"),
+            orm.Load(cls).joinedload("audit")
+                         .joinedload(audit.Audit.issuetracker_issue),
+        )
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

@@ -66,8 +66,12 @@ class Context(base.ContextRBAC, Base, db.Model):
 
   @classmethod
   def eager_query(cls, **kwargs):
-    return super(Context, cls).eager_query(**kwargs).options(
-        orm.subqueryload('user_roles'))
+    """Eager Query."""
+    query = super(Context, cls).eager_query(**kwargs)
+    options = {
+        'user_roles': orm.subqueryload('user_roles'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
 
 class HasOwnContext(object):
@@ -126,10 +130,10 @@ class HasOwnContext(object):
 
   @classmethod
   def eager_query(cls, **kwargs):
-    return super(HasOwnContext, cls).eager_query(**kwargs).options(
-        orm.Load(cls).subqueryload(
-            "contexts"
-        ).undefer_group(
-            "Context_complete"
-        ),
-    )
+    """Eager Query."""
+    query = super(HasOwnContext, cls).eager_query(**kwargs)
+    options = {
+        "contexts": orm.Load(cls).subqueryload("contexts")
+                                 .undefer_group("Context_complete"),
+    }
+    return cls.populate_query(query, options, **kwargs)

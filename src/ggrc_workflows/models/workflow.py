@@ -436,19 +436,21 @@ class Workflow(roleable.Roleable,
 
   @classmethod
   def eager_query(cls, **kwargs):
-    return super(Workflow, cls).eager_query(**kwargs).options(
-        orm.subqueryload('cycles').undefer_group('Cycle_complete')
-           .subqueryload("cycle_task_group_object_tasks")
-           .undefer_group("CycleTaskGroupObjectTask_complete"),
-        orm.subqueryload('task_groups').undefer_group('TaskGroup_complete'),
-        orm.subqueryload(
-            'task_groups'
-        ).subqueryload(
-            "task_group_tasks"
-        ).undefer_group(
-            'TaskGroupTask_complete'
+    query = super(Workflow, cls).eager_query(**kwargs)
+    options = {
+        'cycles': orm.subqueryload('cycles')
+                     .undefer_group('Cycle_complete')
+                     .subqueryload("cycle_task_group_object_tasks")
+                     .undefer_group("CycleTaskGroupObjectTask_complete"),
+        'task_groups': (
+            orm.subqueryload('task_groups')
+               .undefer_group('TaskGroup_complete'),
+            orm.subqueryload('task_groups')
+               .subqueryload("task_group_tasks")
+               .undefer_group('TaskGroupTask_complete'),
         ),
-    )
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

@@ -45,9 +45,11 @@ class Mega(object):
   def eager_query(cls, **kwargs):
     """Define fields to be loaded eagerly to lower the count of DB queries."""
     query = super(Mega, cls).eager_query(**kwargs)
-    return query.options(
-        sa.orm.subqueryload('_child_relationships').load_only("id")
-    )
+    options = {
+        'is_mega': sa.orm.subqueryload('_child_relationships')
+                         .load_only("id"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def get_all_relatives_ids(cls, _id, direction):

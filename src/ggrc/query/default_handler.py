@@ -74,7 +74,8 @@ class DefaultHandler(QueryHelper):
   @staticmethod
   def _transform_to_json(objects, fields=None):
     """Make a JSON representation of objects from the list."""
-    objects_json = [json.publish(obj) for obj in objects]
+    objects_json = [json.publish(obj, attribute_whitelist=fields)
+                    for obj in objects]
     objects_json = json.publish_representation(objects_json)
     if fields:
       objects_json = [{f: o.get(f) for f in fields}

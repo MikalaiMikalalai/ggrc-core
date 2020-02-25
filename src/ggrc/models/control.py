@@ -216,10 +216,14 @@ class Control(with_external_created_by.WithExternalCreatedBy,
 
   @classmethod
   def eager_query(cls, **kwargs):
-    query = super(Control, cls).eager_query(**kwargs)
-    return cls.eager_inclusions(query, Control._include_links).options(
-        orm.joinedload('directive'),
-    )
+    """Eager Query."""
+    query = cls.eager_inclusions(
+        super(Control, cls).eager_query(**kwargs),
+        Control._include_links)
+    options = {
+        'directive': orm.joinedload('directive'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def log_json(self):
     out_json = super(Control, self).log_json()

@@ -57,9 +57,12 @@ class ObjectPerson(Timeboxed, base.ContextRBAC, Base, db.Model):
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(ObjectPerson, cls).eager_query(**kwargs)
-    return query.options(
-        orm.subqueryload('person'))
+    options = {
+        'person': orm.subqueryload('person'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def _display_name(self):
     return self.personable.display_name + '<->' + self.person.display_name
@@ -94,6 +97,11 @@ class Personable(object):
 
   @classmethod
   def eager_query(cls, **kwargs):
-    query = super(Personable, cls).eager_query(**kwargs)
-    return cls.eager_inclusions(query, Personable._include_links).options(
-        orm.subqueryload('object_people'))
+    """Eager Query."""
+    query = cls.eager_inclusions(
+        super(Personable, cls).eager_query(**kwargs),
+        Personable._include_links)
+    options = {
+        'object_people': orm.subqueryload('object_people'),
+    }
+    return cls.populate_query(query, options, **kwargs)

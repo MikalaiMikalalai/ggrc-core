@@ -56,12 +56,13 @@ class WithExternalCreatedBy(object):
   @classmethod
   def eager_query(cls, **kwargs):
     """Return `sqlalchemy.Query` with eagerly loaded `created_by`."""
-    query = super(WithExternalCreatedBy, cls).eager_query(**kwargs)
-    return cls.eager_inclusions(query, cls._include_links).options(
-        orm.joinedload(
-            "created_by",
-        ),
-    )
+    query = cls.eager_inclusions(
+        super(WithExternalCreatedBy, cls).eager_query(**kwargs),
+        cls._include_links)
+    options = {
+        'created_by': orm.joinedload("created_by"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

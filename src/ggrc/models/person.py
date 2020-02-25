@@ -199,17 +199,17 @@ class Person(customattributable.CustomAttributable,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     from sqlalchemy import orm
 
-    # query = super(Person, cls).eager_query(**kwargs)
-    # Completely overriding eager_query to avoid eager loading of the
-    # modified_by relationship
-    return super(Person, cls).eager_query(**kwargs).options(
-        orm.joinedload('language'),
-        orm.joinedload('profile'),
-        orm.subqueryload('object_people'),
-        orm.subqueryload('user_roles'),
-    )
+    query = super(Person, cls).eager_query(**kwargs)
+    options = {
+        'language': orm.joinedload('language'),
+        'profile': orm.joinedload('profile'),
+        'object_people': orm.subqueryload('object_people'),
+        'user_roles': orm.subqueryload('user_roles'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

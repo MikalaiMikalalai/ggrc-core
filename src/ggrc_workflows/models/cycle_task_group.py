@@ -253,8 +253,13 @@ class CycleTaskGroup(roleable.Roleable,
       a query object with cycle_task_group_tasks added to joined load options.
     """
     query = super(CycleTaskGroup, cls).eager_query(**kwargs)
-    return query.options(
-        orm.subqueryload("cycle_task_group_tasks"),
-        orm.joinedload("cycle").undefer_group("Cycle_complete"),
-        orm.joinedload("cycle").joinedload("contact")
-    )
+    options = {
+        "cycle_task_group_tasks": orm.subqueryload("cycle_task_group_tasks"),
+        "cycle": (
+            orm.joinedload("cycle")
+            .undefer_group("Cycle_complete"),
+            orm.joinedload("cycle")
+            .joinedload("contact"),
+        )
+    }
+    return cls.populate_query(query, options, **kwargs)

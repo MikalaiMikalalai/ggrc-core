@@ -218,12 +218,12 @@ class Cycle(roleable.Roleable,
       a query object with cycle_task_groups added to joined load options.
     """
     query = super(Cycle, cls).eager_query(**kwargs)
-    return query.options(
-        orm.joinedload('cycle_task_groups'),
-        orm.Load(cls).joinedload("workflow").undefer_group(
-            "Workflow_complete"
-        ),
-    )
+    options = {
+        'cycle_task_groups': orm.joinedload('cycle_task_groups'),
+        'workflow': orm.Load(cls).joinedload("workflow")
+                                 .undefer_group("Workflow_complete"),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def indexed_query(cls):

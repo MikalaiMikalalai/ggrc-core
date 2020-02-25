@@ -60,7 +60,10 @@ class Requirement(Roleable,
   def eager_query(cls, **kwargs):
     """Define fields to be loaded eagerly to lower the count of DB queries."""
     query = super(Requirement, cls).eager_query(**kwargs)
-    return query.options(orm.undefer('notes'))
+    options = {
+        'notes': orm.undefer('notes'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @classmethod
   def _filter_by_directive(cls, predicate):

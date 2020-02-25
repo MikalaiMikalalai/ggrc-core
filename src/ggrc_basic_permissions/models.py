@@ -122,10 +122,12 @@ class UserRole(rest_handable.WithDeleteHandable,
     from sqlalchemy import orm
 
     query = super(UserRole, cls).eager_query(**kwargs)
-    return query.options(
-        orm.joinedload('role'),
-        orm.subqueryload('person'),
-        orm.subqueryload('context'))
+    options = {
+        'role': orm.joinedload('role'),
+        'person': orm.subqueryload('person'),
+        'context': orm.subqueryload('context'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def _display_name(self):
     if self.context and self.context.related_object_type and \

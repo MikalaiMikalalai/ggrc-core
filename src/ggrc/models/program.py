@@ -80,11 +80,14 @@ class Program(mega.Mega,
 
   @classmethod
   def eager_query(cls, **kwargs):
-    query = super(Program, cls).eager_query(**kwargs)
-
-    return cls.eager_inclusions(query, Program._include_links).options(
-        orm.subqueryload('audits'),
-    )
+    """Eager Query."""
+    query = cls.eager_inclusions(
+        super(Program, cls).eager_query(**kwargs),
+        Program._include_links)
+    options = {
+        'audits': orm.subqueryload('audits'),
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def _check_no_audits(self):
     """Check that audit has no assessments before delete."""

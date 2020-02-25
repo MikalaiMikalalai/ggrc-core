@@ -201,18 +201,19 @@ class TaskGroupTask(roleable.Roleable,
     return self._get_view_date(self.end_date)
 
   @classmethod
-  def _populate_query(cls, query):
-    return query.options(
-        orm.Load(cls).joinedload("task_group")
-                     .undefer_group("TaskGroup_complete"),
-        orm.Load(cls).joinedload("task_group")
-                     .joinedload("workflow")
-                     .undefer_group("Workflow_complete"),
-    )
-
-  @classmethod
   def eager_query(cls, **kwargs):
-    return cls._populate_query(super(TaskGroupTask, cls).eager_query(**kwargs))
+    """Eager Query."""
+    query = super(TaskGroupTask, cls).eager_query(**kwargs)
+    options = {
+        "task_group": (
+            orm.Load(cls).joinedload("task_group")
+               .undefer_group("TaskGroup_complete"),
+            orm.Load(cls).joinedload("task_group")
+               .joinedload("workflow")
+               .undefer_group("Workflow_complete"),
+        )
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   def _display_name(self):
     return self.title + '<->' + self.task_group.display_name

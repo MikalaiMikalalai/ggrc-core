@@ -75,12 +75,15 @@ class CustomAttributeValueBase(base.ContextRBAC,
 
   @classmethod
   def eager_query(cls, **kwargs):
+    """Eager Query."""
     query = super(CustomAttributeValueBase, cls).eager_query(**kwargs)
-    query = query.options(
-        orm.subqueryload('_related_revisions'),
-        orm.joinedload('custom_attribute'),
-    )
-    return query
+    options = {
+        'custom_attribute': (
+            orm.subqueryload('_related_revisions'),
+            orm.joinedload('custom_attribute'),
+        )
+    }
+    return cls.populate_query(query, options, **kwargs)
 
   @declared_attr
   def _related_revisions(cls):  # pylint: disable=no-self-argument
