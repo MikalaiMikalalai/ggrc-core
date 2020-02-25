@@ -63,7 +63,7 @@ TASK_FIELDS_FOR_MODIFICATION = (
 ASSESSMENT_FIELDS_FOR_MODIFICATION = (
     'assessment_assignees_reminder', 'assessment_open', 'assessment_verified',
     'assessment_completed', 'assessment_ready_for_review',
-    'assessment_declined', 'assessment_reopened')
+    'assessment_started', 'assessment_declined', 'assessment_reopened')
 
 
 class Services(object):
@@ -247,7 +247,7 @@ def prepare_comments_for_json(notif_data):
             }
         )
       modified_comments_list.append(modified_comments)
-    notif_data["comment_created"] = modified_comments
+    notif_data["comment_created"] = modified_comments_list
 
 
 def build_pagination_params():
@@ -570,8 +570,9 @@ def show_pending_notifications_json():
   for day_notif in notif_data.itervalues():
     for _data in day_notif.itervalues():
       _data = modify_notification_data(_data)
-  data = [{"date": str(_date), "emails": [notif.values()]}
+  data = [{"date": _date, "emails": notif.values()}
           for (_date, notif) in notif_data.iteritems()]
+  data.sort(key=lambda item: item["date"])
   return make_json_response('Success', 200, data, total_count)
 
 
@@ -596,8 +597,10 @@ def modify_notification_data(data):
   data["unsubscribe_url"] = unsubscribe_url(data["user"]["id"])
   data["date_format"] = DATE_FORMAT_US
   data["user_name"] = data["user"]["name"]
-  data["user_email"] = data["user"]["email"]
   del data["user"]
+
+  if "force_notifications" in data:
+    del data["force_notifications"]
 
   sort_comments(data)
   prepare_comments_for_json(data)
@@ -622,7 +625,7 @@ def modify_task_fields_for_json(data):
         updated_field_vals.append(
             {
                 "workflow_title": val.get("workflow_title"),
-                "workflow_url": val.get("workflow_title"),
+                "workflow_url": val.get("workflow_url"),
                 "title": val.get("title"),
                 "task_group_title": val.get("task_group_title"),
                 "cycle_task_url": val.get("cycle_task_url"),
@@ -648,14 +651,19 @@ def modify_cycle_data_fields_for_json(data):
     cycle_data = []
     tasks_list = data["cycle_data"].values()
     for tasks in tasks_list:
-      my_tasks = tasks["my_tasks"].values()
-      for task in my_tasks:
-        cycle_data.append({
-            "cycle_task_url": task.get("cycle_task_url"),
-            "title": task.get("title"),
-            "end_date": task.get("end_date"),
-            "related_objects": task.get("related_objects", []),
-        })
+      if "my_tasks" in tasks:
+        my_tasks = tasks["my_tasks"].values()
+        for task in my_tasks:
+          cycle_data.append({
+              "cycle_task_url": task.get("cycle_task_url"),
+              "title": task.get("title"),
+              "end_date": task.get("end_date"),
+              "related_objects": task.get("related_objects", []),
+          })
+    if not cycle_data:
+      del data["cycle_data"]
+      return
+
     data["cycle_data"] = cycle_data
 
 
@@ -672,7 +680,7 @@ def modify_assessment_data_fields_for_json(data):
       for val in field_vals:
         updated_field_vals.append(
             {
-                "notif_created_at": val.get("notif_created_at")[0],
+                "notif_created_at": val.get("notif_created_at").values()[0],
                 "end-date": val.get("end-date"),
                 "url": val.get("url"),
                 "title": val.get("title"),
