@@ -31,9 +31,8 @@ class CustomAttributableBase(object):
   _api_attrs = reflection.ApiAttributes(
       'custom_attribute_values',
       reflection.Attribute('custom_attribute_definitions',
-                           create=False,
-                           update=False),
-      reflection.Attribute('custom_attributes', read=False),
+                           create=True,
+                           update=True),
   )
 
   _include_links = ['custom_attribute_values', 'custom_attribute_definitions']
@@ -183,6 +182,71 @@ class CustomAttributable(CustomAttributableBase):
                   CustomAttributeDefinition.id.asc()),
         viewonly=True,
     )
+
+  @custom_attribute_definitions.setter
+  def custom_attribute_definitions(self, src):
+    """Legacy setter for custom attribute values and definitions.
+
+    This code should only be used for custom attribute definitions until
+    setter for that is updated.
+    """
+    # pylint: disable=too-many-locals
+    from ggrc.models.custom_attribute_value import CustomAttributeValue
+    ca_values = src.get("custom_attribute_values")
+    if ca_values and "attribute_value" in ca_values[0]:
+      # This indicates that the new CA API is being used and the legacy API
+      # should be ignored. If we need to use the legacy API the
+      # custom_attribute_values property should contain stubs instead of entire
+      # objects.
+      return
+
+    definitions = src.get("custom_attribute_definitions")
+    if definitions is not None:
+      self.process_definitions(definitions)
+
+    attributes = src.get("custom_attributes")
+    if not attributes:
+      return
+
+    old_values = collections.defaultdict(list)
+
+    # attributes looks like this:
+    #    [ {<id of attribute definition> : attribute value, ... }, ... ]
+
+    # 1) Get all custom attribute values for the CustomAttributable instance
+    attr_values = db.session.query(CustomAttributeValue).filter(sa.and_(
+      CustomAttributeValue.attributable_type == self.__class__.__name__,
+      CustomAttributeValue.attributable_id == self.id)).all()
+
+    # Save previous value of custom attribute. This is a bit complicated by
+    # the fact that imports can save multiple values at the time of writing.
+    # old_values holds all previous values of attribute, last_values holds
+    # chronologically last value.
+    for value in attr_values:
+      old_values[value.custom_attribute_id].append(
+        (value.created_at, value.attribute_value))
+
+    self._remove_existing_items(attr_values)
+
+    # 4) Instantiate custom attribute values for each of the definitions
+    #    passed in (keys)
+    # pylint: disable=not-an-iterable
+    # filter out attributes like Person:None
+    attributes = {k: v for k, v in attributes.items() if v != "Person:None"}
+    definitions = {d.id: d for d in self.get_custom_attribute_definitions()}
+    for ad_id in attributes.keys():
+      new_value = CustomAttributeValue(
+          custom_attribute=definitions[long(ad_id)],
+          custom_attribute_id=int(ad_id),
+          attributable=self,
+          attribute_value=attributes[ad_id],
+      )
+      if definitions[int(ad_id)].attribute_type.startswith("Map:"):
+        obj_type, obj_id = new_value.attribute_value.split(":")
+        new_value.attribute_value = obj_type
+        new_value.attribute_object_id = long(obj_id)
+      elif definitions[int(ad_id)].attribute_type == "Checkbox":
+        new_value.attribute_value = "1" if new_value.attribute_value else "0"
 
   @declared_attr
   def local_custom_attribute_definitions(cls):
@@ -568,80 +632,14 @@ class CustomAttributable(CustomAttributableBase):
         .delete(synchronize_session='fetch')
     db.session.commit()
 
-  def custom_attributes(self, src):
-    """Legacy setter for custom attribute values and definitions.
-
-    This code should only be used for custom attribute definitions until
-    setter for that is updated.
-    """
-    # pylint: disable=too-many-locals
-    from ggrc.models.custom_attribute_value import CustomAttributeValue
-
-    ca_values = src.get("custom_attribute_values")
-    if ca_values and "attribute_value" in ca_values[0]:
-      # This indicates that the new CA API is being used and the legacy API
-      # should be ignored. If we need to use the legacy API the
-      # custom_attribute_values property should contain stubs instead of entire
-      # objects.
-      return
-
-    definitions = src.get("custom_attribute_definitions")
-    if definitions is not None:
-      self.process_definitions(definitions)
-
-    attributes = src.get("custom_attributes")
-    if not attributes:
-      return
-
-    old_values = collections.defaultdict(list)
-
-    # attributes looks like this:
-    #    [ {<id of attribute definition> : attribute value, ... }, ... ]
-
-    # 1) Get all custom attribute values for the CustomAttributable instance
-    attr_values = db.session.query(CustomAttributeValue).filter(sa.and_(
-        CustomAttributeValue.attributable_type == self.__class__.__name__,
-        CustomAttributeValue.attributable_id == self.id)).all()
-
-    # Save previous value of custom attribute. This is a bit complicated by
-    # the fact that imports can save multiple values at the time of writing.
-    # old_values holds all previous values of attribute, last_values holds
-    # chronologically last value.
-    for value in attr_values:
-      old_values[value.custom_attribute_id].append(
-          (value.created_at, value.attribute_value))
-
-    self._remove_existing_items(attr_values)
-
-    # 4) Instantiate custom attribute values for each of the definitions
-    #    passed in (keys)
-    # pylint: disable=not-an-iterable
-    # filter out attributes like Person:None
-    attributes = {k: v for k, v in attributes.items() if v != "Person:None"}
-    definitions = {d.id: d for d in self.get_custom_attribute_definitions()}
-    for ad_id in attributes.keys():
-      obj_type = self.__class__.__name__
-      obj_id = self.id
-      new_value = CustomAttributeValue(
-          custom_attribute=definitions[long(ad_id)],
-          custom_attribute_id=int(ad_id),
-          attributable=self,
-          attribute_value=attributes[ad_id],
-      )
-      if definitions[int(ad_id)].attribute_type.startswith("Map:"):
-        obj_type, obj_id = new_value.attribute_value.split(":")
-        new_value.attribute_value = obj_type
-        new_value.attribute_object_id = long(obj_id)
-      elif definitions[int(ad_id)].attribute_type == "Checkbox":
-        new_value.attribute_value = "1" if new_value.attribute_value else "0"
-
-      # 5) Set the context_id for each custom attribute value to the context id
-      #    of the custom attributable.
-      # TODO: We are ignoring contexts for now
-      # new_value.context_id = cls.context_id
-
-      # new value is appended to self.custom_attribute_values by the ORM
-      # self.custom_attribute_values.append(new_value)
+  # def custom_attributes(self, src):
+  #   """Legacy setter for custom attribute values and definitions.
+  #
+  #   This code should only be used for custom attribute definitions until
+  #   setter for that is updated.
+  #   """
+  #   import pdb;pdb.set_trace()
+  #   self.custom_attribute_definitions = src
 
   @classmethod
   def get_custom_attribute_definitions(cls, field_names=None,
