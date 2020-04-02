@@ -7,6 +7,7 @@ from logging import getLogger
 from traceback import format_exc
 
 from ggrc import extensions
+from ggrc import login
 from ggrc.notifications import common
 
 
@@ -69,20 +70,20 @@ def init_cron_views(app):
   """Init all cron jobs' endpoints"""
   app.add_url_rule(
       "/nightly_cron_endpoint", "nightly_cron_endpoint",
-      view_func=nightly_cron_endpoint)
+      view_func=login.cron_required(nightly_cron_endpoint))
 
   app.add_url_rule(
       "/hourly_issue_tracker_sync_endpoint",
       "hourly_issue_tracker_sync_endpoint",
-      view_func=hourly_issue_tracker_sync_endpoint
+      view_func=login.cron_required(hourly_issue_tracker_sync_endpoint)
   )
 
   app.add_url_rule(
       "/half_hour_cron_endpoint", "half_hour_cron_endpoint",
-      view_func=half_hour_cron_endpoint
+      view_func=login.cron_required(half_hour_cron_endpoint)
   )
 
   app.add_url_rule(
       "/import_health_cron_endpoint", "import_health_cron_endpoint",
-      view_func=import_health_cron_endpoint
+      view_func=login.cron_required(import_health_cron_endpoint)
   )

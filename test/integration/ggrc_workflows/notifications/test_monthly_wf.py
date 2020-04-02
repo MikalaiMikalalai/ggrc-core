@@ -57,7 +57,11 @@ class TestMonthlyWorkflowNotification(TestCase):
         self.assertNotIn(user.email, notif_data)
 
     with freeze_time("2015-04-02"):
-      self.api.client.get("nightly_cron_endpoint")
+      headers = {
+          'X-Appengine-Cron': True,
+      }
+      response = self.api.client.get("nightly_cron_endpoint", headers=headers)
+      self.assert200(response)
       _, notif_data = common.get_daily_notifications()
       for user in task_assignees:
         self.assertNotIn(user.email, notif_data)

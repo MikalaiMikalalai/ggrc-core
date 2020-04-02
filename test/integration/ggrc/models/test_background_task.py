@@ -3,6 +3,7 @@
 
 """Tests for background_task model."""
 
+import ddt
 import mock
 
 from ggrc.app import app
@@ -113,3 +114,20 @@ class TestPermissions(TestCase):
         self.assertEqual(set(bg_task_content.keys()),
                          {"id", "selfLink", "status", "type"})
       self.assertTrue(len(bg_tasks_content) >= 1)
+
+
+@ddt.ddt
+class TestCronJobs(TestCase):
+  """Test CRON jobs protection"""
+  # pylint: disable=unused-argument
+  def setUp(self):
+    super(TestCronJobs, self).setUp()
+    self.api = api_helper.Api()
+
+  @ddt.data(({'X-Appengine-Cron': True}, 200), ({}, 403))
+  @ddt.unpack
+  @mock.patch("ggrc.notifications.common.send_email")
+  def test_cron_jobs_protection(self, headers, status_code, send_email):
+    """Test CRON jobs CRON jobs protected with 'X-Appengine-Cron' header"""
+    response = self.api.client.get("nightly_cron_endpoint", headers=headers)
+    self.assertEqual(response.status_code, status_code)

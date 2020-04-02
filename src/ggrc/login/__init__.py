@@ -166,6 +166,23 @@ def admin_required(func):
   return admin_check
 
 
+def cron_required(func):
+  """CRON required decorator.
+  Securing URLs for CRON documentation:
+    https://cloud.google.com/appengine/docs/standard/python/config/cron#securing_urls_for_cron
+
+  Raises:
+     Forbidden: if not running by CRON and no secret key in request params.
+  """
+  @wraps(func)
+  def cron_header_check(*args, **kwargs):
+    """Helper function that performs CRON header check"""
+    if not request.headers.get('X-Appengine-Cron'):
+      raise Forbidden()
+    return func(*args, **kwargs)
+  return cron_header_check
+
+
 def is_creator():
   """Check if the current user has global role Creator."""
   current_user = _get_current_logged_user()
