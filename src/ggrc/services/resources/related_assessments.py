@@ -202,7 +202,7 @@ class RelatedAssessmentsResource(common.Resource):
       # We avoid using snapshot.revision.log_json_base() to reduce the amount
       # of data being sent to the client.
       snapshot_json["revision"] = {
-          "content": {"title": snapshot.revision.content["title"]}
+          "content": snapshot.revision.content,
       }
       snapshots_json.append(snapshot_json)
     return snapshots_json
