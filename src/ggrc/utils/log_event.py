@@ -10,11 +10,11 @@ from logging import getLogger
 from flask import request
 
 from ggrc import db
+from ggrc import login
 from ggrc.models.cache import Cache
 from ggrc.models.event import Event
 from ggrc.models.revision import Revision
 from ggrc.models.mixins.synchronizable import Synchronizable
-from ggrc.login import get_current_user_id
 from ggrc.utils.revisions_diff import builder as revisions_diff
 
 logger = getLogger(__name__)
@@ -25,38 +25,21 @@ def _revision_generator(user_id, action, objects):
   from ggrc.utils import revisions
   for obj in objects:
     content = obj.log_json()
-    if "access_control_list" in content and content["access_control_list"]:
-      for acl in content["access_control_list"]:
-        acl["person"] = {
-            "id": acl["person_id"],
-            "type": "Person",
-            "href": "/api/people/{}".format(acl["person_id"]),
-        }
+    _populate_content_acl(content)
+
     rev = revisions.build_revision_body(
         obj.id,
         obj.__class__.__name__,
         content,
         None,
         action,
-        user_id
+        user_id,
     )
-    if isinstance(obj, Synchronizable):
-      rev["created_at"] = obj.updated_at
-      rev["updated_at"] = obj.updated_at
-    else:
-      rev["created_at"] = datetime.utcnow().replace(microsecond=0).isoformat()
-      rev["updated_at"] = datetime.utcnow().replace(microsecond=0).isoformat()
-    for attr in ["source_type",
-                 "source_id",
-                 "destination_type",
-                 "destination_id"]:
-      rev[attr] = getattr(obj, attr, None)
-    if action in ("created", "deleted"):
-      rev["is_empty"] = False
-    else:
-      rev["is_empty"] = bool(
-          obj and not revisions_diff.changes_present(obj, rev["content"])
-      )
+
+    _populate_created_updated_at(obj, rev)
+    _populate_relationship_fields(obj, rev)
+    _populate_is_empty_field(obj, rev, action)
+
     yield rev
 
 
@@ -88,7 +71,7 @@ def _get_log_revisions(current_user_id, obj=None, force_obj=False):
   revisions.extend(_revision_generator(
       current_user_id, "created", cache.new
   ))
-  revisions = sort_relationship_revisions(revisions)
+  revisions = _sort_relationship_revisions(revisions)
   revisions.extend(_revision_generator(
       current_user_id, "modified", modified_objects
   ))
@@ -123,7 +106,7 @@ def log_event(session, obj=None, current_user_id=None, flush=True,
   if flush:
     session.flush()
   if current_user_id is None:
-    current_user_id = get_current_user_id()
+    current_user_id = login.get_current_user_id()
   revisions = _get_log_revisions(current_user_id, obj=obj, force_obj=force_obj)
   if obj is None:
     resource_id = 0
@@ -156,10 +139,71 @@ def log_event(session, obj=None, current_user_id=None, flush=True,
   return event
 
 
-def sort_relationship_revisions(revisions):
+def _sort_relationship_revisions(revisions):
   """Sort revisions of relationships to create automapping relationships
   after original mapping"""
   other = [rev for rev in revisions if rev["resource_type"] != "Relationship"]
   rels = [rev for rev in revisions if rev["resource_type"] == "Relationship"]
   rels.sort(key=lambda obj: obj["content"]["automapping_id"])
   return other + rels
+
+
+def _populate_content_acl(content):
+  """Populate access control list in revision content
+  Args:
+    content(dict): object content
+  """
+  if "access_control_list" in content and content["access_control_list"]:
+    for acl in content["access_control_list"]:
+      acl["person"] = {
+          "id": acl["person_id"],
+          "type": "Person",
+          "href": "/api/people/{}".format(acl["person_id"]),
+      }
+
+
+def _populate_created_updated_at(obj, rev):
+  """Populate created_at and updated_at revision fields
+  Args:
+    obj: object instance
+    rev(dict): object revision
+  """
+  if isinstance(obj, Synchronizable):
+    if login.is_external_app_user():
+      rev["created_at"] = obj.updated_at
+      rev["updated_at"] = obj.updated_at
+    else:
+      prev_rev = revisions_diff.get_latest_revision_content(obj)
+      rev["created_at"] = prev_rev['created_at']
+      rev["updated_at"] = prev_rev['updated_at']
+  else:
+    rev["created_at"] = datetime.utcnow().replace(microsecond=0).isoformat()
+    rev["updated_at"] = datetime.utcnow().replace(microsecond=0).isoformat()
+
+
+def _populate_relationship_fields(obj, rev):
+  """Populate relationship related revision fields
+  Args:
+    obj: object instance
+    rev(dict): object revision
+  """
+  for attr in ["source_type",
+               "source_id",
+               "destination_type",
+               "destination_id"]:
+    rev[attr] = getattr(obj, attr, None)
+
+
+def _populate_is_empty_field(obj, rev, action):
+  """Populate is_empty revision field
+  Args:
+    obj: object instance
+    rev(dict): object revision
+    action(str): revision action
+  """
+  if action in ("created", "deleted"):
+    rev["is_empty"] = False
+  else:
+    rev["is_empty"] = bool(
+        obj and not revisions_diff.changes_present(obj, rev["content"])
+    )
